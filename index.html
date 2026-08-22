@@ -13,31 +13,31 @@
 
     body {
       margin: 0;
+      padding: 20px;
+      background: #f5f6f8;
       font-family:
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
-      background: #f5f6f8;
       color: #222;
     }
 
     .container {
       max-width: 700px;
       margin: 0 auto;
-      padding: 30px 20px;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 25px;
+      margin: 20px 0 25px;
       font-size: 26px;
     }
 
     .card {
-      background: white;
-      border-radius: 16px;
+      background: #fff;
       padding: 22px;
+      border-radius: 16px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
 
@@ -47,25 +47,38 @@
       font-weight: 600;
     }
 
+    input,
     textarea {
       width: 100%;
-      min-height: 250px;
-      padding: 15px;
+      padding: 13px;
       border: 1px solid #ddd;
       border-radius: 10px;
       font-size: 16px;
-      line-height: 1.6;
-      resize: vertical;
       outline: none;
     }
 
+    input:focus,
     textarea:focus {
       border-color: #777;
     }
 
+    textarea {
+      min-height: 250px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .date {
+      margin-top: 18px;
+    }
+
+    .content {
+      margin-top: 18px;
+    }
+
     button {
       width: 100%;
-      margin-top: 15px;
+      margin-top: 20px;
       padding: 15px;
       border: 0;
       border-radius: 10px;
@@ -73,26 +86,17 @@
       color: white;
       font-size: 16px;
       font-weight: 600;
-      cursor: pointer;
     }
 
     button:disabled {
       opacity: 0.5;
-      cursor: not-allowed;
     }
 
     #message {
-      margin-top: 15px;
       text-align: center;
-      font-size: 14px;
-      min-height: 20px;
-    }
-
-    .hint {
       margin-top: 15px;
-      color: #777;
-      font-size: 13px;
-      line-height: 1.5;
+      min-height: 22px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -105,36 +109,77 @@
 
   <div class="card">
 
-    <label for="content">내용</label>
+    <!-- 제목 -->
+    <label for="name">Name</label>
 
-    <textarea
-      id="content"
-      placeholder="카카오톡 내용을 붙여넣으세요."
-    ></textarea>
+    <input
+      id="name"
+      type="text"
+      placeholder="제목을 입력하세요"
+      value="카카오톡 기록"
+    >
 
+
+    <!-- 날짜 -->
+    <div class="date">
+
+      <label for="date">Date</label>
+
+      <input
+        id="date"
+        type="datetime-local"
+      >
+
+    </div>
+
+
+    <!-- 내용 -->
+    <div class="content">
+
+      <label for="notes">Notes</label>
+
+      <textarea
+        id="notes"
+        placeholder="카카오톡 내용을 붙여넣으세요."
+      ></textarea>
+
+    </div>
+
+
+    <!-- 저장 -->
     <button id="saveButton">
       Airtable에 저장
     </button>
 
     <div id="message"></div>
 
-    <div class="hint">
-      카카오톡에서 메시지를 복사한 후 이곳에 붙여넣고
-      「Airtable에 저장」을 누르세요.
-    </div>
-
   </div>
 
 </div>
 
+
 <script>
 
-  // Cloudflare Worker 주소를 여기에 입력합니다.
-  const WORKER_URL =
-    "https://YOUR-WORKER.workers.dev";
+  // ----------------------------------------
+  // Cloudflare Worker 주소
+  // ----------------------------------------
 
-  const contentInput =
-    document.getElementById("content");
+  const WORKER_URL =
+    "https://kakao.s01021319376.workers.dev";
+
+
+  // ----------------------------------------
+  // HTML 요소
+  // ----------------------------------------
+
+  const nameInput =
+    document.getElementById("name");
+
+  const dateInput =
+    document.getElementById("date");
+
+  const notesInput =
+    document.getElementById("notes");
 
   const saveButton =
     document.getElementById("saveButton");
@@ -143,64 +188,145 @@
     document.getElementById("message");
 
 
-  saveButton.addEventListener("click", async () => {
+  // ----------------------------------------
+  // 현재 날짜/시간 자동 입력
+  // ----------------------------------------
 
-    const content =
-      contentInput.value.trim();
+  function setCurrentDateTime() {
 
-    if (!content) {
-      message.textContent =
-        "카카오톡 내용을 입력해주세요.";
-      return;
-    }
+    const now = new Date();
 
-    saveButton.disabled = true;
-    message.textContent = "저장 중입니다...";
+    const year =
+      now.getFullYear();
 
-    try {
+    const month =
+      String(now.getMonth() + 1)
+        .padStart(2, "0");
 
-      const response = await fetch(WORKER_URL, {
+    const day =
+      String(now.getDate())
+        .padStart(2, "0");
 
-        method: "POST",
+    const hour =
+      String(now.getHours())
+        .padStart(2, "0");
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+    const minute =
+      String(now.getMinutes())
+        .padStart(2, "0");
 
-        body: JSON.stringify({
-          content: content
-        })
+    dateInput.value =
+      `${year}-${month}-${day}T${hour}:${minute}`;
+  }
 
-      });
 
-      const result =
-        await response.json();
+  setCurrentDateTime();
 
-      if (!response.ok) {
-        throw new Error(
-          result.error || "저장에 실패했습니다."
-        );
+
+  // ----------------------------------------
+  // 저장 버튼
+  // ----------------------------------------
+
+  saveButton.addEventListener(
+    "click",
+    async () => {
+
+      const name =
+        nameInput.value.trim();
+
+      const notes =
+        notesInput.value.trim();
+
+      const date =
+        dateInput.value;
+
+
+      // 내용 확인
+
+      if (!notes) {
+
+        message.textContent =
+          "카카오톡 내용을 입력해주세요.";
+
+        return;
       }
 
-      message.textContent =
-        "Airtable에 저장되었습니다.";
 
-      contentInput.value = "";
-
-    } catch (error) {
-
-      console.error(error);
+      saveButton.disabled = true;
 
       message.textContent =
-        "저장 실패: " + error.message;
+        "Airtable에 저장하는 중입니다...";
 
-    } finally {
 
-      saveButton.disabled = false;
+      try {
+
+        const response =
+          await fetch(
+            WORKER_URL,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body: JSON.stringify({
+                name: name,
+                notes: notes,
+                date: date
+              })
+            }
+          );
+
+
+        const result =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            result.error ||
+            "저장에 실패했습니다."
+          );
+
+        }
+
+
+        // 성공
+
+        message.textContent =
+          "✓ Airtable에 저장되었습니다.";
+
+
+        // 내용 비우기
+
+        notesInput.value = "";
+
+
+        // 날짜 갱신
+
+        setCurrentDateTime();
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        message.textContent =
+          "저장 실패: " +
+          error.message;
+
+
+      } finally {
+
+        saveButton.disabled = false;
+
+      }
 
     }
-
-  });
+  );
 
 </script>
 
