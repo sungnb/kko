@@ -153,7 +153,7 @@ main{
 
 <body>
 
-<header>카톡 기록</header>
+<header id="pageTitle">카톡 기록</header>
 
 <main id="list">
   <div class="status">
@@ -193,15 +193,81 @@ const API_URL =
   "https://kakao.s01021319376.workers.dev/";
 
 
+const AIRTABLE_VIEW =
+  "viwreVjNBkgyyOG7C";
+
+
 const list =
   document.getElementById("list");
+
+const pageTitle =
+  document.getElementById("pageTitle");
 
 
 let allRecords = [];
 
 
 /* =====================================================
-   Airtable 필드 찾기
+   URL의 ?type= 값 읽기
+===================================================== */
+
+function getTypeFromURL(){
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const type =
+    params.get("type");
+
+  const allowedTypes = [
+    "일반문서",
+    "중요문서",
+    "이미지",
+    "동영상"
+  ];
+
+  if(
+    allowedTypes.includes(type)
+  ){
+    return type;
+  }
+
+  return "일반문서";
+}
+
+
+/* =====================================================
+   페이지 제목
+===================================================== */
+
+function setPageTitle(type){
+
+  const titles = {
+
+    "일반문서":
+      "📄 일반문서",
+
+    "중요문서":
+      "⭐ 중요문서",
+
+    "이미지":
+      "🖼️ 이미지",
+
+    "동영상":
+      "🎬 동영상"
+
+  };
+
+  pageTitle.textContent =
+    titles[type] || "카톡 기록";
+
+}
+
+
+/* =====================================================
+   필드 찾기
 ===================================================== */
 
 function field(fields,names){
@@ -253,7 +319,7 @@ function getDocumentType(record){
 
 
 /* =====================================================
-   첨부파일 가져오기
+   첨부파일
 ===================================================== */
 
 function attachmentList(fields){
@@ -308,7 +374,7 @@ function attachmentList(fields){
 
 
 /* =====================================================
-   이미지인지 확인
+   이미지 파일
 ===================================================== */
 
 function isImageFile(file){
@@ -330,7 +396,7 @@ function isImageFile(file){
 
 
 /* =====================================================
-   동영상인지 확인
+   동영상 파일
 ===================================================== */
 
 function isVideoFile(file){
@@ -433,7 +499,7 @@ function getDocumentRecords(type){
 
 
 /* =====================================================
-   이미지 자료 만들기
+   이미지 자료
 ===================================================== */
 
 function getImageRecords(){
@@ -443,14 +509,12 @@ function getImageRecords(){
 
   for(const record of allRecords){
 
-    const fields =
-      record.fields || {};
-
     const files =
-      attachmentList(fields)
-        .filter(
-          file => isImageFile(file)
-        );
+      attachmentList(
+        record.fields || {}
+      ).filter(
+        file => isImageFile(file)
+      );
 
 
     if(files.length){
@@ -474,7 +538,7 @@ function getImageRecords(){
 
 
 /* =====================================================
-   동영상 자료 만들기
+   동영상 자료
 ===================================================== */
 
 function getVideoRecords(){
@@ -484,14 +548,12 @@ function getVideoRecords(){
 
   for(const record of allRecords){
 
-    const fields =
-      record.fields || {};
-
     const files =
-      attachmentList(fields)
-        .filter(
-          file => isVideoFile(file)
-        );
+      attachmentList(
+        record.fields || {}
+      ).filter(
+        file => isVideoFile(file)
+      );
 
 
     if(files.length){
@@ -597,6 +659,11 @@ function renderDocuments(
     }
 
 
+    /*
+       일반문서 / 중요문서에서도
+       첨부파일은 기존처럼 표시
+    */
+
     const files =
       attachmentList(
         record.fields || {}
@@ -616,19 +683,19 @@ function renderDocuments(
 
         if(isVideoFile(file)){
 
-          const v =
+          const video =
             document.createElement("video");
 
-          v.src =
+          video.src =
             file.url;
 
-          v.controls =
+          video.controls =
             true;
 
-          v.playsInline =
+          video.playsInline =
             true;
 
-          media.appendChild(v);
+          media.appendChild(video);
 
         }
 
@@ -685,7 +752,6 @@ function renderDocuments(
 
 /* =====================================================
    이미지 표시
-   Airtable 원래 순서 유지
 ===================================================== */
 
 function renderImages(){
@@ -724,8 +790,6 @@ function renderImages(){
     card.className =
       "card";
 
-
-    /* 어느 문서의 이미지인지 */
 
     const title =
       document.createElement("div");
@@ -833,7 +897,6 @@ function renderImages(){
 
 /* =====================================================
    동영상 표시
-   Airtable 원래 순서 유지
 ===================================================== */
 
 function renderVideos(){
@@ -983,6 +1046,9 @@ function renderVideos(){
 
 function render(type){
 
+  setPageTitle(type);
+
+
   if(type === "이미지"){
 
     renderImages();
@@ -1010,10 +1076,14 @@ function render(type){
 
 
 /* =====================================================
-   Airtable → Worker → GitHub
+   Airtable 자료 불러오기
 ===================================================== */
 
 async function load(type){
+
+  /*
+     버튼 색상
+  */
 
   document
     .querySelectorAll(".bottom button")
@@ -1029,32 +1099,35 @@ async function load(type){
     );
 
 
+  setPageTitle(type);
+
+
   list.innerHTML =
     `<div class="status">
-      자료를 불러오는 중입니다...
+      ${type} 자료를 불러오는 중입니다...
     </div>`;
 
 
   try{
 
     /*
-      매번 Worker에서 다시 가져옵니다.
-
-      따라서 Airtable에 새로운 자료가
-      들어오면 새로고침 없이도 버튼을
-      누를 때 최신 데이터를 가져옵니다.
+       Airtable View를 지정해서
+       자료를 가져옵니다.
     */
 
+    const requestUrl =
+      API_URL +
+      "?maxRecords=100" +
+      "&view=" +
+      encodeURIComponent(
+        AIRTABLE_VIEW
+      ) +
+      "&t=" +
+      Date.now();
+
+
     const response =
-      await fetch(
-        API_URL +
-        "?maxRecords=100&view=" +
-        encodeURIComponent(
-          "viwreVjNBkgyyOG7C"
-        ) +
-        "&t=" +
-        Date.now()
-      );
+      await fetch(requestUrl);
 
 
     if(!response.ok){
@@ -1081,10 +1154,8 @@ async function load(type){
 
 
     /*
-      Airtable에서 받은 순서를
-      그대로 유지합니다.
-
-      sort()를 사용하지 않습니다.
+       Airtable에서 받은 순서를
+       절대로 sort()하지 않습니다.
     */
 
     allRecords =
@@ -1105,11 +1176,15 @@ async function load(type){
 
     list.innerHTML =
       `<div class="error">
+
         <strong>
           ❌ 자료를 가져오지 못했습니다.
         </strong>
+
         <br><br>
+
         ${error.message}
+
       </div>`;
 
   }
@@ -1118,7 +1193,7 @@ async function load(type){
 
 
 /* =====================================================
-   버튼
+   하단 버튼
 ===================================================== */
 
 document
@@ -1130,9 +1205,31 @@ document
         "click",
         () => {
 
-          load(
-            button.dataset.type
+          const type =
+            button.dataset.type;
+
+
+          /*
+             주소도 같이 변경합니다.
+
+             예:
+             ?type=이미지
+          */
+
+          const newUrl =
+            window.location.pathname +
+            "?type=" +
+            encodeURIComponent(type);
+
+
+          window.history.pushState(
+            {},
+            "",
+            newUrl
           );
+
+
+          load(type);
 
         }
       );
@@ -1142,10 +1239,30 @@ document
 
 
 /* =====================================================
+   브라우저 뒤로가기
+===================================================== */
+
+window.addEventListener(
+  "popstate",
+  () => {
+
+    load(
+      getTypeFromURL()
+    );
+
+  }
+);
+
+
+/* =====================================================
    처음 실행
 ===================================================== */
 
-load("일반문서");
+const initialType =
+  getTypeFromURL();
+
+
+load(initialType);
 
 </script>
 
