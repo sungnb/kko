@@ -292,8 +292,11 @@ function field(fields,names){
       fields[name] !== null &&
       fields[name] !== ""
     ){
+
       return fields[name];
+
     }
+
   }
 
   return "";
@@ -323,6 +326,7 @@ function getDocumentType(record){
       ]
     )
   ).trim();
+
 }
 
 
@@ -350,6 +354,7 @@ function attachmentList(fields){
         typeof item === "object" &&
         item.url
       ){
+
         files.push({
           key:key,
           url:item.url,
@@ -360,8 +365,11 @@ function attachmentList(fields){
             item.filename ||
             key
         });
+
       }
+
     }
+
   }
 
   return files;
@@ -378,11 +386,14 @@ function isImageFile(file){
     file.type &&
     file.type.startsWith("image/")
   ){
+
     return true;
+
   }
 
   return /\.(jpg|jpeg|png|gif|webp|heic|heif)$/i
     .test(file.name);
+
 }
 
 
@@ -396,11 +407,14 @@ function isVideoFile(file){
     file.type &&
     file.type.startsWith("video/")
   ){
+
     return true;
+
   }
 
   return /\.(mp4|mov|m4v|webm|avi|mkv)$/i
     .test(file.name);
+
 }
 
 
@@ -421,6 +435,7 @@ function getDate(record){
       "작성일"
     ]
   );
+
 }
 
 
@@ -441,6 +456,7 @@ function getTitle(record){
       "Name"
     ]
   ) || "카톡 기록";
+
 }
 
 
@@ -462,6 +478,7 @@ function getNotes(record){
       "text"
     ]
   );
+
 }
 
 
@@ -485,6 +502,7 @@ function getRecordSortTime(record){
     if(!Number.isNaN(time)){
       return time;
     }
+
   }
 
   const dateValue =
@@ -496,6 +514,7 @@ function getRecordSortTime(record){
   return Number.isNaN(time)
     ? 0
     : time;
+
 }
 
 
@@ -506,6 +525,7 @@ function sortNewestFirst(records){
       getRecordSortTime(b) -
       getRecordSortTime(a)
   );
+
 }
 
 
@@ -519,8 +539,13 @@ async function deleteRecord(record, card){
     record && record.id;
 
   if(!recordId){
-    alert("삭제할 자료의 ID를 찾지 못했습니다.");
+
+    alert(
+      "삭제할 자료의 ID를 찾지 못했습니다."
+    );
+
     return;
+
   }
 
   const title =
@@ -539,8 +564,10 @@ async function deleteRecord(record, card){
     card.querySelector(".delete-button");
 
   if(button){
+
     button.disabled = true;
     button.textContent = "삭제 중...";
+
   }
 
   try{
@@ -564,11 +591,13 @@ async function deleteRecord(record, card){
       await response.json();
 
     if(!response.ok || !data.success){
+
       throw new Error(
         data.error?.message ||
         data.error ||
         "자료 삭제에 실패했습니다."
       );
+
     }
 
     card.remove();
@@ -588,11 +617,16 @@ async function deleteRecord(record, card){
     );
 
     if(button){
+
       button.disabled = false;
       button.textContent = "🗑️ 삭제";
+
     }
+
   }
+
 }
+
 
 function addDeleteButton(record, card){
 
@@ -600,8 +634,12 @@ function addDeleteButton(record, card){
     document.createElement("button");
 
   button.type = "button";
-  button.className = "delete-button";
-  button.textContent = "🗑️ 삭제";
+
+  button.className =
+    "delete-button";
+
+  button.textContent =
+    "🗑️ 삭제";
 
   button.addEventListener(
     "click",
@@ -611,6 +649,7 @@ function addDeleteButton(record, card){
   );
 
   card.appendChild(button);
+
 }
 
 
@@ -627,6 +666,7 @@ function getDocumentRecords(type){
         getDocumentType(record) === type
     )
   );
+
 }
 
 
@@ -648,11 +688,14 @@ function getImageRecords(){
       );
 
     if(files.length){
+
       result.push({
         record:record,
         files:files
       });
+
     }
+
   }
 
   return result.sort(
@@ -660,6 +703,7 @@ function getImageRecords(){
       getRecordSortTime(b.record) -
       getRecordSortTime(a.record)
   );
+
 }
 
 
@@ -681,11 +725,14 @@ function getVideoRecords(){
       );
 
     if(files.length){
+
       result.push({
         record:record,
         files:files
       });
+
     }
+
   }
 
   return result.sort(
@@ -693,6 +740,7 @@ function getVideoRecords(){
       getRecordSortTime(b.record) -
       getRecordSortTime(a.record)
   );
+
 }
 
 
@@ -712,6 +760,7 @@ function renderDocuments(records,type){
       </div>`;
 
     return;
+
   }
 
   for(const record of records){
@@ -724,7 +773,8 @@ function renderDocuments(records,type){
     const titleEl =
       document.createElement("div");
 
-    titleEl.className = "card-title";
+    titleEl.className =
+      "card-title";
 
     titleEl.textContent =
       getTitle(record);
@@ -740,9 +790,11 @@ function renderDocuments(records,type){
         document.createElement("div");
 
       d.className = "date";
+
       d.textContent = date;
 
       card.appendChild(d);
+
     }
 
     const notes =
@@ -754,9 +806,11 @@ function renderDocuments(records,type){
         document.createElement("div");
 
       n.className = "notes";
+
       n.textContent = notes;
 
       card.appendChild(n);
+
     }
 
     const files =
@@ -794,6 +848,7 @@ function renderDocuments(records,type){
           img.loading = "lazy";
 
           media.appendChild(img);
+
         }
 
         const a =
@@ -805,14 +860,19 @@ function renderDocuments(records,type){
         a.textContent = "파일 보기";
 
         media.appendChild(a);
+
       }
 
       card.appendChild(media);
+
     }
 
     addDeleteButton(record, card);
+
     list.appendChild(card);
+
   }
+
 }
 
 
@@ -835,6 +895,7 @@ function renderImages(){
       </div>`;
 
     return;
+
   }
 
   for(const item of imageRecords){
@@ -850,8 +911,11 @@ function renderImages(){
     const title =
       document.createElement("div");
 
-    title.className = "card-title";
-    title.textContent = getTitle(record);
+    title.className =
+      "card-title";
+
+    title.textContent =
+      getTitle(record);
 
     card.appendChild(title);
 
@@ -863,13 +927,18 @@ function renderImages(){
       const typeEl =
         document.createElement("div");
 
-      typeEl.className = "media-title";
-      typeEl.textContent = "📁 " + documentType;
+      typeEl.className =
+        "media-title";
+
+      typeEl.textContent =
+        "📁 " + documentType;
 
       card.appendChild(typeEl);
+
     }
 
-    const date = getDate(record);
+    const date =
+      getDate(record);
 
     if(date){
 
@@ -877,9 +946,11 @@ function renderImages(){
         document.createElement("div");
 
       d.className = "date";
+
       d.textContent = date;
 
       card.appendChild(d);
+
     }
 
     const media =
@@ -893,7 +964,9 @@ function renderImages(){
         document.createElement("img");
 
       img.src = file.url;
+
       img.alt = file.name;
+
       img.loading = "lazy";
 
       media.appendChild(img);
@@ -902,17 +975,26 @@ function renderImages(){
         document.createElement("a");
 
       a.href = file.url;
+
       a.target = "_blank";
+
       a.rel = "noopener";
-      a.textContent = "파일 보기";
+
+      a.textContent =
+        "파일 보기";
 
       media.appendChild(a);
+
     }
 
     card.appendChild(media);
+
     addDeleteButton(record, card);
+
     list.appendChild(card);
+
   }
+
 }
 
 
@@ -935,6 +1017,7 @@ function renderVideos(){
       </div>`;
 
     return;
+
   }
 
   for(const item of videoRecords){
@@ -950,8 +1033,11 @@ function renderVideos(){
     const title =
       document.createElement("div");
 
-    title.className = "card-title";
-    title.textContent = getTitle(record);
+    title.className =
+      "card-title";
+
+    title.textContent =
+      getTitle(record);
 
     card.appendChild(title);
 
@@ -963,13 +1049,18 @@ function renderVideos(){
       const typeEl =
         document.createElement("div");
 
-      typeEl.className = "media-title";
-      typeEl.textContent = "📁 " + documentType;
+      typeEl.className =
+        "media-title";
+
+      typeEl.textContent =
+        "📁 " + documentType;
 
       card.appendChild(typeEl);
+
     }
 
-    const date = getDate(record);
+    const date =
+      getDate(record);
 
     if(date){
 
@@ -977,9 +1068,11 @@ function renderVideos(){
         document.createElement("div");
 
       d.className = "date";
+
       d.textContent = date;
 
       card.appendChild(d);
+
     }
 
     const media =
@@ -993,7 +1086,9 @@ function renderVideos(){
         document.createElement("video");
 
       video.src = file.url;
+
       video.controls = true;
+
       video.playsInline = true;
 
       media.appendChild(video);
@@ -1002,17 +1097,26 @@ function renderVideos(){
         document.createElement("a");
 
       a.href = file.url;
+
       a.target = "_blank";
+
       a.rel = "noopener";
-      a.textContent = "파일 보기";
+
+      a.textContent =
+        "파일 보기";
 
       media.appendChild(a);
+
     }
 
     card.appendChild(media);
+
     addDeleteButton(record, card);
+
     list.appendChild(card);
+
   }
+
 }
 
 
@@ -1025,19 +1129,26 @@ function render(type){
   setPageTitle(type);
 
   if(type === "이미지"){
+
     renderImages();
+
     return;
+
   }
 
   if(type === "동영상"){
+
     renderVideos();
+
     return;
+
   }
 
   renderDocuments(
     getDocumentRecords(type),
     type
   );
+
 }
 
 
@@ -1051,10 +1162,12 @@ async function load(type){
     .querySelectorAll(".bottom button")
     .forEach(
       button => {
+
         button.classList.toggle(
           "active",
           button.dataset.type === type
         );
+
       }
     );
 
@@ -1081,17 +1194,23 @@ async function load(type){
       });
 
     if(!response.ok){
+
       throw new Error(
         "Worker 응답 오류: HTTP " +
         response.status
       );
+
     }
 
     const data =
       await response.json();
 
     if(!data.success){
-      throw new Error("Worker 조회 실패");
+
+      throw new Error(
+        "Worker 조회 실패"
+      );
+
     }
 
     allRecords =
@@ -1113,7 +1232,9 @@ async function load(type){
         <br><br>
         ${error.message}
       </div>`;
+
   }
+
 }
 
 
@@ -1145,8 +1266,10 @@ document
           );
 
           load(type);
+
         }
       );
+
     }
   );
 
@@ -1158,7 +1281,11 @@ document
 window.addEventListener(
   "popstate",
   () => {
-    load(getTypeFromURL());
+
+    load(
+      getTypeFromURL()
+    );
+
   }
 );
 
