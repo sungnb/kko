@@ -4,17 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#3f7f4a">
+
 <title>카톡 기록</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
   background:#f4f6f5;
   color:#222;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",
-  "Noto Sans KR",sans-serif
+  font-family:-apple-system,BlinkMacSystemFont,
+  "Segoe UI","Noto Sans KR",sans-serif;
 }
 
 header{
@@ -26,36 +29,20 @@ header{
   font-weight:700;
   position:sticky;
   top:0;
-  z-index:5
+  z-index:5;
 }
 
 main{
   padding:14px 12px 92px;
   max-width:720px;
-  margin:auto
+  margin:auto;
 }
 
 .status{
   text-align:center;
   color:#777;
   font-size:14px;
-  padding:12px
-}
-
-.debug{
-  background:#fffbe6;
-  border:1px solid #e5d78a;
-  border-radius:12px;
   padding:12px;
-  margin:10px 0;
-  font-size:13px;
-  line-height:1.6;
-  color:#555;
-  word-break:break-word
-}
-
-.debug strong{
-  color:#222
 }
 
 .card{
@@ -63,47 +50,56 @@ main{
   border-radius:14px;
   padding:16px;
   margin:10px 0;
-  box-shadow:0 2px 8px rgba(0,0,0,.08)
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
 
 .card-title{
   font-size:18px;
   font-weight:700;
-  margin-bottom:8px
+  margin-bottom:8px;
 }
 
 .date{
   font-size:13px;
   color:#888;
-  margin-bottom:10px
+  margin-bottom:10px;
 }
 
 .notes{
   font-size:16px;
   line-height:1.65;
   white-space:pre-wrap;
-  word-break:break-word
+  word-break:break-word;
 }
 
 .media{
-  margin-top:12px
+  margin-top:12px;
 }
 
 .media img,
 .media video{
+  display:block;
   width:100%;
   max-height:520px;
   object-fit:contain;
   border-radius:10px;
-  background:#eee
+  background:#eee;
+  margin-bottom:8px;
 }
 
 .media a{
   display:inline-block;
-  margin-top:8px;
+  margin-top:2px;
+  margin-bottom:10px;
   color:#2f6f3a;
   text-decoration:none;
-  font-weight:600
+  font-weight:600;
+}
+
+.media-title{
+  font-size:14px;
+  color:#777;
+  margin-bottom:8px;
 }
 
 .bottom{
@@ -117,7 +113,7 @@ main{
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:6px;
-  z-index:10
+  z-index:10;
 }
 
 .bottom button{
@@ -128,18 +124,18 @@ main{
   font-size:14px;
   font-weight:700;
   padding:13px 4px;
-  min-height:48px
+  min-height:48px;
 }
 
 .bottom button.active{
   background:#3f7f4a;
-  color:#fff
+  color:#fff;
 }
 
 .empty{
   text-align:center;
   padding:45px 10px;
-  color:#777
+  color:#777;
 }
 
 .error{
@@ -149,280 +145,94 @@ main{
   border-radius:12px;
   padding:15px;
   margin:12px 0;
-  line-height:1.6
+  line-height:1.6;
 }
 </style>
 </head>
+
 
 <body>
 
 <header>카톡 기록</header>
 
 <main id="list">
-  <div class="status">자료를 불러오는 중입니다...</div>
+  <div class="status">
+    자료를 불러오는 중입니다...
+  </div>
 </main>
 
+
 <nav class="bottom">
-  <button data-type="일반문서">일반문서</button>
-  <button data-type="중요문서">중요문서</button>
-  <button data-type="이미지">이미지</button>
-  <button data-type="동영상">동영상</button>
+
+  <button data-type="일반문서">
+    일반문서
+  </button>
+
+  <button data-type="중요문서">
+    중요문서
+  </button>
+
+  <button data-type="이미지">
+    이미지
+  </button>
+
+  <button data-type="동영상">
+    동영상
+  </button>
+
 </nav>
 
+
 <script>
+
+/* =====================================================
+   Cloudflare Worker
+===================================================== */
 
 const API_URL =
   "https://kakao.s01021319376.workers.dev/";
 
-const list = document.getElementById("list");
+
+const list =
+  document.getElementById("list");
+
 
 let allRecords = [];
 
 
-/* --------------------------------
-   여러 이름 중 실제 값이 있는 필드 찾기
--------------------------------- */
+/* =====================================================
+   Airtable 필드 찾기
+===================================================== */
 
-function field(fields, names){
+function field(fields,names){
 
-  for(const n of names){
+  for(const name of names){
 
     if(
-      fields[n] !== undefined &&
-      fields[n] !== null &&
-      fields[n] !== ""
+      fields[name] !== undefined &&
+      fields[name] !== null &&
+      fields[name] !== ""
     ){
-      return fields[n];
+
+      return fields[name];
+
     }
 
   }
 
   return "";
-}
-
-
-/* --------------------------------
-   Airtable 첨부파일 찾기
--------------------------------- */
-
-function attachmentList(fields){
-
-  const out = [];
-
-  for(const [key,value] of Object.entries(fields || {})){
-
-    if(Array.isArray(value)){
-
-      for(const item of value){
-
-        if(
-          item &&
-          typeof item === "object" &&
-          item.url
-        ){
-
-          out.push({
-            key:key,
-            url:item.url,
-            type:item.type || "",
-            name:item.filename || key
-          });
-
-        }
-
-      }
-
-    }
-
-  }
-
-  return out;
-}
-
-
-/* --------------------------------
-   진단 정보 표시
--------------------------------- */
-
-function showDebug(message){
-
-  const debug = document.createElement("div");
-
-  debug.className = "debug";
-
-  debug.innerHTML = message;
-
-  list.appendChild(debug);
 
 }
 
 
-/* --------------------------------
-   데이터 표시
--------------------------------- */
-
-function render(records,type){
-
-  list.innerHTML = "";
-
-  if(!records.length){
-
-    list.innerHTML =
-      `<div class="empty">
-        ${type} 자료가 없습니다.
-      </div>`;
-
-    return;
-  }
-
-
-  for(const record of records){
-
-    const f = record.fields || {};
-
-    const title =
-      field(
-        f,
-        ["Title","제목","Name"]
-      ) || type;
-
-    const notes =
-      field(
-        f,
-        ["Notes","내용","Text","text"]
-      );
-
-    const date =
-      field(
-        f,
-        ["Date","날짜","작성일"]
-      );
-
-    const files =
-      attachmentList(f);
-
-
-    const card =
-      document.createElement("section");
-
-    card.className = "card";
-
-
-    const titleEl =
-      document.createElement("div");
-
-    titleEl.className = "card-title";
-
-    titleEl.textContent = title;
-
-    card.appendChild(titleEl);
-
-
-    if(date){
-
-      const d =
-        document.createElement("div");
-
-      d.className = "date";
-
-      d.textContent = date;
-
-      card.appendChild(d);
-
-    }
-
-
-    if(notes){
-
-      const n =
-        document.createElement("div");
-
-      n.className = "notes";
-
-      n.textContent = notes;
-
-      card.appendChild(n);
-
-    }
-
-
-    if(files.length){
-
-      const media =
-        document.createElement("div");
-
-      media.className = "media";
-
-
-      for(const file of files){
-
-        const isVideo =
-          type === "동영상" ||
-          file.type.startsWith("video/") ||
-          /\.(mp4|mov|m4v|webm)$/i.test(file.name);
-
-
-        if(isVideo){
-
-          const v =
-            document.createElement("video");
-
-          v.src = file.url;
-          v.controls = true;
-          v.playsInline = true;
-
-          media.appendChild(v);
-
-        }else{
-
-          const img =
-            document.createElement("img");
-
-          img.src = file.url;
-          img.alt = file.name;
-          img.loading = "lazy";
-
-          media.appendChild(img);
-
-        }
-
-
-        const a =
-          document.createElement("a");
-
-        a.href = file.url;
-        a.target = "_blank";
-        a.rel = "noopener";
-
-        a.textContent = "파일 보기";
-
-        media.appendChild(a);
-
-      }
-
-
-      card.appendChild(media);
-
-    }
-
-
-    list.appendChild(card);
-
-  }
-
-}
-
-
-/* --------------------------------
-   자료 종류 확인
-
-   Airtable의 여러 가능한 필드명을
-   모두 확인하도록 확장
--------------------------------- */
+/* =====================================================
+   문서 종류
+===================================================== */
 
 function getDocumentType(record){
 
-  const f = record.fields || {};
+  const f =
+    record.fields || {};
 
   return String(
     field(
@@ -442,258 +252,864 @@ function getDocumentType(record){
 }
 
 
-/* --------------------------------
-   자료 종류 비교
--------------------------------- */
+/* =====================================================
+   첨부파일 가져오기
+===================================================== */
 
-function matchesType(record,type){
+function attachmentList(fields){
 
-  const documentType =
-    getDocumentType(record);
+  const files = [];
 
-  return documentType === type;
+
+  for(
+    const [key,value]
+    of Object.entries(fields || {})
+  ){
+
+    if(!Array.isArray(value)){
+      continue;
+    }
+
+
+    for(const item of value){
+
+      if(
+        item &&
+        typeof item === "object" &&
+        item.url
+      ){
+
+        files.push({
+
+          key:key,
+
+          url:item.url,
+
+          type:String(
+            item.type || ""
+          ).toLowerCase(),
+
+          name:
+            item.filename ||
+            key
+
+        });
+
+      }
+
+    }
+
+  }
+
+
+  return files;
 
 }
 
 
-/* --------------------------------
-   Worker → Airtable 데이터 가져오기
--------------------------------- */
+/* =====================================================
+   이미지인지 확인
+===================================================== */
+
+function isImageFile(file){
+
+  if(
+    file.type &&
+    file.type.startsWith("image/")
+  ){
+
+    return true;
+
+  }
+
+
+  return /\.(jpg|jpeg|png|gif|webp|heic|heif)$/i
+    .test(file.name);
+
+}
+
+
+/* =====================================================
+   동영상인지 확인
+===================================================== */
+
+function isVideoFile(file){
+
+  if(
+    file.type &&
+    file.type.startsWith("video/")
+  ){
+
+    return true;
+
+  }
+
+
+  return /\.(mp4|mov|m4v|webm|avi|mkv)$/i
+    .test(file.name);
+
+}
+
+
+/* =====================================================
+   날짜
+===================================================== */
+
+function getDate(record){
+
+  const f =
+    record.fields || {};
+
+  return field(
+    f,
+    [
+      "Date",
+      "날짜",
+      "작성일"
+    ]
+  );
+
+}
+
+
+/* =====================================================
+   제목
+===================================================== */
+
+function getTitle(record){
+
+  const f =
+    record.fields || {};
+
+  return field(
+    f,
+    [
+      "Title",
+      "제목",
+      "Name"
+    ]
+  ) || "카톡 기록";
+
+}
+
+
+/* =====================================================
+   내용
+===================================================== */
+
+function getNotes(record){
+
+  const f =
+    record.fields || {};
+
+  return field(
+    f,
+    [
+      "Notes",
+      "내용",
+      "Text",
+      "text"
+    ]
+  );
+
+}
+
+
+/* =====================================================
+   일반문서 / 중요문서
+===================================================== */
+
+function getDocumentRecords(type){
+
+  return allRecords.filter(
+    record => {
+
+      return getDocumentType(record) === type;
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   이미지 자료 만들기
+===================================================== */
+
+function getImageRecords(){
+
+  const result = [];
+
+
+  for(const record of allRecords){
+
+    const fields =
+      record.fields || {};
+
+    const files =
+      attachmentList(fields)
+        .filter(
+          file => isImageFile(file)
+        );
+
+
+    if(files.length){
+
+      result.push({
+
+        record:record,
+
+        files:files
+
+      });
+
+    }
+
+  }
+
+
+  return result;
+
+}
+
+
+/* =====================================================
+   동영상 자료 만들기
+===================================================== */
+
+function getVideoRecords(){
+
+  const result = [];
+
+
+  for(const record of allRecords){
+
+    const fields =
+      record.fields || {};
+
+    const files =
+      attachmentList(fields)
+        .filter(
+          file => isVideoFile(file)
+        );
+
+
+    if(files.length){
+
+      result.push({
+
+        record:record,
+
+        files:files
+
+      });
+
+    }
+
+  }
+
+
+  return result;
+
+}
+
+
+/* =====================================================
+   일반문서 / 중요문서 표시
+===================================================== */
+
+function renderDocuments(
+  records,
+  type
+){
+
+  list.innerHTML = "";
+
+
+  if(!records.length){
+
+    list.innerHTML =
+      `<div class="empty">
+        ${type} 자료가 없습니다.
+      </div>`;
+
+    return;
+
+  }
+
+
+  for(const record of records){
+
+    const card =
+      document.createElement("section");
+
+    card.className =
+      "card";
+
+
+    const titleEl =
+      document.createElement("div");
+
+    titleEl.className =
+      "card-title";
+
+    titleEl.textContent =
+      getTitle(record);
+
+    card.appendChild(titleEl);
+
+
+    const date =
+      getDate(record);
+
+    if(date){
+
+      const d =
+        document.createElement("div");
+
+      d.className =
+        "date";
+
+      d.textContent =
+        date;
+
+      card.appendChild(d);
+
+    }
+
+
+    const notes =
+      getNotes(record);
+
+    if(notes){
+
+      const n =
+        document.createElement("div");
+
+      n.className =
+        "notes";
+
+      n.textContent =
+        notes;
+
+      card.appendChild(n);
+
+    }
+
+
+    const files =
+      attachmentList(
+        record.fields || {}
+      );
+
+
+    if(files.length){
+
+      const media =
+        document.createElement("div");
+
+      media.className =
+        "media";
+
+
+      for(const file of files){
+
+        if(isVideoFile(file)){
+
+          const v =
+            document.createElement("video");
+
+          v.src =
+            file.url;
+
+          v.controls =
+            true;
+
+          v.playsInline =
+            true;
+
+          media.appendChild(v);
+
+        }
+
+        else if(isImageFile(file)){
+
+          const img =
+            document.createElement("img");
+
+          img.src =
+            file.url;
+
+          img.alt =
+            file.name;
+
+          img.loading =
+            "lazy";
+
+          media.appendChild(img);
+
+        }
+
+
+        const a =
+          document.createElement("a");
+
+        a.href =
+          file.url;
+
+        a.target =
+          "_blank";
+
+        a.rel =
+          "noopener";
+
+        a.textContent =
+          "파일 보기";
+
+        media.appendChild(a);
+
+      }
+
+
+      card.appendChild(media);
+
+    }
+
+
+    list.appendChild(card);
+
+  }
+
+}
+
+
+/* =====================================================
+   이미지 표시
+   Airtable 원래 순서 유지
+===================================================== */
+
+function renderImages(){
+
+  const imageRecords =
+    getImageRecords();
+
+
+  list.innerHTML = "";
+
+
+  if(!imageRecords.length){
+
+    list.innerHTML =
+      `<div class="empty">
+        이미지 자료가 없습니다.
+      </div>`;
+
+    return;
+
+  }
+
+
+  for(const item of imageRecords){
+
+    const record =
+      item.record;
+
+    const files =
+      item.files;
+
+
+    const card =
+      document.createElement("section");
+
+    card.className =
+      "card";
+
+
+    /* 어느 문서의 이미지인지 */
+
+    const title =
+      document.createElement("div");
+
+    title.className =
+      "card-title";
+
+    title.textContent =
+      getTitle(record);
+
+    card.appendChild(title);
+
+
+    const documentType =
+      getDocumentType(record);
+
+
+    if(documentType){
+
+      const typeEl =
+        document.createElement("div");
+
+      typeEl.className =
+        "media-title";
+
+      typeEl.textContent =
+        "📁 " + documentType;
+
+      card.appendChild(typeEl);
+
+    }
+
+
+    const date =
+      getDate(record);
+
+    if(date){
+
+      const d =
+        document.createElement("div");
+
+      d.className =
+        "date";
+
+      d.textContent =
+        date;
+
+      card.appendChild(d);
+
+    }
+
+
+    const media =
+      document.createElement("div");
+
+    media.className =
+      "media";
+
+
+    for(const file of files){
+
+      const img =
+        document.createElement("img");
+
+      img.src =
+        file.url;
+
+      img.alt =
+        file.name;
+
+      img.loading =
+        "lazy";
+
+      media.appendChild(img);
+
+
+      const a =
+        document.createElement("a");
+
+      a.href =
+        file.url;
+
+      a.target =
+        "_blank";
+
+      a.rel =
+        "noopener";
+
+      a.textContent =
+        "파일 보기";
+
+      media.appendChild(a);
+
+    }
+
+
+    card.appendChild(media);
+
+    list.appendChild(card);
+
+  }
+
+}
+
+
+/* =====================================================
+   동영상 표시
+   Airtable 원래 순서 유지
+===================================================== */
+
+function renderVideos(){
+
+  const videoRecords =
+    getVideoRecords();
+
+
+  list.innerHTML = "";
+
+
+  if(!videoRecords.length){
+
+    list.innerHTML =
+      `<div class="empty">
+        동영상 자료가 없습니다.
+      </div>`;
+
+    return;
+
+  }
+
+
+  for(const item of videoRecords){
+
+    const record =
+      item.record;
+
+    const files =
+      item.files;
+
+
+    const card =
+      document.createElement("section");
+
+    card.className =
+      "card";
+
+
+    const title =
+      document.createElement("div");
+
+    title.className =
+      "card-title";
+
+    title.textContent =
+      getTitle(record);
+
+    card.appendChild(title);
+
+
+    const documentType =
+      getDocumentType(record);
+
+
+    if(documentType){
+
+      const typeEl =
+        document.createElement("div");
+
+      typeEl.className =
+        "media-title";
+
+      typeEl.textContent =
+        "📁 " + documentType;
+
+      card.appendChild(typeEl);
+
+    }
+
+
+    const date =
+      getDate(record);
+
+    if(date){
+
+      const d =
+        document.createElement("div");
+
+      d.className =
+        "date";
+
+      d.textContent =
+        date;
+
+      card.appendChild(d);
+
+    }
+
+
+    const media =
+      document.createElement("div");
+
+    media.className =
+      "media";
+
+
+    for(const file of files){
+
+      const video =
+        document.createElement("video");
+
+      video.src =
+        file.url;
+
+      video.controls =
+        true;
+
+      video.playsInline =
+        true;
+
+      media.appendChild(video);
+
+
+      const a =
+        document.createElement("a");
+
+      a.href =
+        file.url;
+
+      a.target =
+        "_blank";
+
+      a.rel =
+        "noopener";
+
+      a.textContent =
+        "파일 보기";
+
+      media.appendChild(a);
+
+    }
+
+
+    card.appendChild(media);
+
+    list.appendChild(card);
+
+  }
+
+}
+
+
+/* =====================================================
+   화면 표시
+===================================================== */
+
+function render(type){
+
+  if(type === "이미지"){
+
+    renderImages();
+
+    return;
+
+  }
+
+
+  if(type === "동영상"){
+
+    renderVideos();
+
+    return;
+
+  }
+
+
+  renderDocuments(
+    getDocumentRecords(type),
+    type
+  );
+
+}
+
+
+/* =====================================================
+   Airtable → Worker → GitHub
+===================================================== */
 
 async function load(type){
 
   document
     .querySelectorAll(".bottom button")
     .forEach(
-      b =>
-        b.classList.toggle(
+      button => {
+
+        button.classList.toggle(
           "active",
-          b.dataset.type === type
-        )
+          button.dataset.type === type
+        );
+
+      }
     );
 
 
   list.innerHTML =
     `<div class="status">
-      ${type} 자료를 불러오는 중입니다...
+      자료를 불러오는 중입니다...
     </div>`;
 
 
   try{
 
-    /* -----------------------------
-       처음 한 번만 Worker 호출
-    ----------------------------- */
+    /*
+      매번 Worker에서 다시 가져옵니다.
 
-    if(!allRecords.length){
+      따라서 Airtable에 새로운 자료가
+      들어오면 새로고침 없이도 버튼을
+      누를 때 최신 데이터를 가져옵니다.
+    */
 
-      console.log(
-        "Worker 요청:",
-        API_URL
+    const response =
+      await fetch(
+        API_URL +
+        "?maxRecords=100&view=" +
+        encodeURIComponent(
+          "viwreVjNBkgyyOG7C"
+        ) +
+        "&t=" +
+        Date.now()
       );
 
 
-      const res =
-        await fetch(
-          API_URL + "?maxRecords=100",
-          {
-            method:"GET",
-            cache:"no-store"
-          }
-        );
+    if(!response.ok){
 
-
-      console.log(
-        "Worker 응답 상태:",
-        res.status
+      throw new Error(
+        "Worker 응답 오류: HTTP " +
+        response.status
       );
-
-
-      if(!res.ok){
-
-        throw new Error(
-          "Worker 응답 오류: HTTP " +
-          res.status
-        );
-
-      }
-
-
-      const data =
-        await res.json();
-
-
-      console.log(
-        "Worker에서 받은 전체 데이터:",
-        data
-      );
-
-
-      /* -----------------------------
-         Worker 성공 여부
-      ----------------------------- */
-
-      if(!data.success){
-
-        throw new Error(
-          "Worker 조회 실패: " +
-          JSON.stringify(data.error || data)
-        );
-
-      }
-
-
-      allRecords =
-        Array.isArray(data.records)
-          ? data.records
-          : [];
-
-
-      /* -----------------------------
-         핵심 진단 화면
-      ----------------------------- */
-
-      list.innerHTML = "";
-
-
-      showDebug(
-        "<strong>✅ Worker 연결 성공</strong><br>" +
-        "Airtable에서 받은 자료: " +
-        "<strong>" +
-        allRecords.length +
-        "건</strong>"
-      );
-
-
-      /* -----------------------------
-         실제로 받은 첫 번째 데이터의
-         필드 이름과 값을 보여줌
-      ----------------------------- */
-
-      if(allRecords.length){
-
-        const first =
-          allRecords[0];
-
-        const fields =
-          first.fields || {};
-
-
-        let fieldText = "";
-
-        for(
-          const [key,value]
-          of Object.entries(fields)
-        ){
-
-          let displayValue = "";
-
-          if(Array.isArray(value)){
-
-            displayValue =
-              "[첨부파일/배열 " +
-              value.length +
-              "개]";
-
-          }else if(
-            value &&
-            typeof value === "object"
-          ){
-
-            displayValue =
-              "[객체]";
-
-          }else{
-
-            displayValue =
-              String(value);
-
-          }
-
-
-          fieldText +=
-            "<strong>" +
-            key +
-            "</strong> = " +
-            displayValue +
-            "<br>";
-
-        }
-
-
-        showDebug(
-          "<strong>첫 번째 Airtable 자료의 필드</strong><br>" +
-          fieldText
-        );
-
-      }
-
-
-      /* -----------------------------
-         각 자료의 문서구분 확인
-      ----------------------------- */
-
-      const typeList =
-        [...new Set(
-          allRecords.map(
-            r => getDocumentType(r)
-          )
-        )].filter(Boolean);
-
-
-      if(typeList.length){
-
-        showDebug(
-          "<strong>현재 인식된 자료 구분:</strong><br>" +
-          typeList.join(" / ")
-        );
-
-      }else{
-
-        showDebug(
-          "<strong>⚠ 자료 구분 필드를 찾지 못했습니다.</strong><br>" +
-          "Airtable의 실제 필드 이름을 확인해야 합니다."
-        );
-
-      }
 
     }
 
 
-    /* -----------------------------
-       선택한 종류만 표시
-    ----------------------------- */
+    const data =
+      await response.json();
 
-    const filtered =
-      allRecords.filter(
-        r => matchesType(r,type)
+
+    if(!data.success){
+
+      throw new Error(
+        "Worker 조회 실패"
       );
 
-
-    render(
-      filtered,
-      type
-    );
+    }
 
 
-  }catch(e){
+    /*
+      Airtable에서 받은 순서를
+      그대로 유지합니다.
+
+      sort()를 사용하지 않습니다.
+    */
+
+    allRecords =
+      Array.isArray(data.records)
+        ? data.records
+        : [];
+
+
+    render(type);
+
+
+  }catch(error){
 
     console.error(
-      "데이터 불러오기 오류:",
-      e
+      error
     );
 
 
     list.innerHTML =
       `<div class="error">
-        <strong>❌ 자료를 가져오지 못했습니다.</strong>
+        <strong>
+          ❌ 자료를 가져오지 못했습니다.
+        </strong>
         <br><br>
-        ${e.message}
-        <br><br>
-        <small>
-        브라우저 개발자 콘솔에서도
-        자세한 오류를 확인할 수 있습니다.
-        </small>
+        ${error.message}
       </div>`;
 
   }
@@ -701,25 +1117,33 @@ async function load(type){
 }
 
 
-/* --------------------------------
-   하단 버튼
--------------------------------- */
+/* =====================================================
+   버튼
+===================================================== */
 
 document
   .querySelectorAll(".bottom button")
-  .forEach(btn => {
+  .forEach(
+    button => {
 
-    btn.addEventListener(
-      "click",
-      () => load(btn.dataset.type)
-    );
+      button.addEventListener(
+        "click",
+        () => {
 
-  });
+          load(
+            button.dataset.type
+          );
+
+        }
+      );
+
+    }
+  );
 
 
-/* --------------------------------
+/* =====================================================
    처음 실행
--------------------------------- */
+===================================================== */
 
 load("일반문서");
 
