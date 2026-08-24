@@ -8,6 +8,7 @@
 <title>카톡 기록</title>
 
 <style>
+
 *{
   box-sizing:border-box;
 }
@@ -45,13 +46,64 @@ main{
   padding:12px;
 }
 
+
+/* =====================================================
+   기본 카드
+===================================================== */
+
 .card{
   background:#fff;
   border-radius:14px;
   padding:16px;
   margin:10px 0;
   box-shadow:0 2px 8px rgba(0,0,0,.08);
+  border:1px solid rgba(0,0,0,.08);
 }
+
+
+/* =====================================================
+   📄 일반문서 카드
+===================================================== */
+
+.card.document-normal{
+  background:#f7f7f7;
+  border-color:#d7d7d7;
+}
+
+
+/* =====================================================
+   ⭐ 중요문서 카드
+===================================================== */
+
+.card.document-important{
+  background:#fffbea;
+  border-color:#eadb9a;
+}
+
+
+/* =====================================================
+   🖼️ 이미지 카드
+===================================================== */
+
+.card.document-image{
+  background:#f1f9f3;
+  border-color:#b9d8be;
+}
+
+
+/* =====================================================
+   🎬 동영상 카드
+===================================================== */
+
+.card.document-video{
+  background:#f1f7fc;
+  border-color:#b8d0e5;
+}
+
+
+/* =====================================================
+   제목
+===================================================== */
 
 .card-title{
   font-size:18px;
@@ -71,6 +123,11 @@ main{
   white-space:pre-wrap;
   word-break:break-word;
 }
+
+
+/* =====================================================
+   미디어
+===================================================== */
 
 .media{
   margin-top:12px;
@@ -262,6 +319,7 @@ main{
   margin:12px 0;
   line-height:1.6;
 }
+
 </style>
 </head>
 
@@ -271,9 +329,11 @@ main{
 <header id="pageTitle">카톡 기록</header>
 
 <main id="list">
+
   <div class="status">
     자료를 불러오는 중입니다...
   </div>
+
 </main>
 
 
@@ -347,7 +407,9 @@ function getTypeFromURL(){
   if(
     allowedTypes.includes(type)
   ){
+
     return type;
+
   }
 
   return "일반문서";
@@ -378,6 +440,7 @@ function setPageTitle(type){
 
   pageTitle.textContent =
     titles[type] || "카톡 기록";
+
 }
 
 
@@ -701,6 +764,7 @@ function getImageRecords(){
         a.record
       )
   );
+
 }
 
 
@@ -747,6 +811,40 @@ function getVideoRecords(){
         a.record
       )
   );
+
+}
+
+
+/* =====================================================
+   카드 색상
+===================================================== */
+
+function getCardClass(type){
+
+  switch(type){
+
+    case "중요문서":
+
+      return "card document-important";
+
+    case "이미지":
+
+      return "card document-image";
+
+    case "동영상":
+
+      return "card document-video";
+
+    case "일반문서":
+
+      return "card document-normal";
+
+    default:
+
+      return "card";
+
+  }
+
 }
 
 
@@ -940,7 +1038,7 @@ async function deleteRecord(
 
 
 /* =====================================================
-   📋 복사 / 🗑️ 삭제 버튼 만들기
+   📋 복사 / 🗑️ 삭제 버튼
 ===================================================== */
 
 function addActionButtons(
@@ -956,8 +1054,6 @@ function addActionButtons(
   actionButtons.className =
     "action-buttons";
 
-
-  /* 📋 복사 */
 
   const copyButton =
     document.createElement(
@@ -983,8 +1079,6 @@ function addActionButtons(
     }
   );
 
-
-  /* 🗑️ 삭제 */
 
   const deleteButton =
     document.createElement(
@@ -1062,11 +1156,11 @@ function renderDocuments(
         "section"
       );
 
+    /* ★ 자료 종류에 따른 색상 적용 */
+
     card.className =
-      "card";
+      getCardClass(type);
 
-
-    /* 제목 */
 
     const titleEl =
       document.createElement(
@@ -1083,8 +1177,6 @@ function renderDocuments(
       titleEl
     );
 
-
-    /* 날짜 */
 
     const date =
       getDate(record);
@@ -1109,8 +1201,6 @@ function renderDocuments(
     }
 
 
-    /* Notes */
-
     const notes =
       getNotes(record);
 
@@ -1133,8 +1223,6 @@ function renderDocuments(
 
     }
 
-
-    /* 첨부파일 */
 
     const files =
       attachmentList(
@@ -1205,8 +1293,6 @@ function renderDocuments(
         }
 
 
-        /* 📎 파일 보기 */
-
         const a =
           document.createElement(
             "a"
@@ -1237,8 +1323,6 @@ function renderDocuments(
 
     }
 
-
-    /* 📋 복사 / 🗑️ 삭제 */
 
     addActionButtons(
       record,
@@ -1295,11 +1379,11 @@ function renderImages(){
         "section"
       );
 
+    /* ★ 이미지 색상 */
+
     card.className =
-      "card";
+      getCardClass("이미지");
 
-
-    /* 제목 */
 
     const title =
       document.createElement(
@@ -1316,8 +1400,6 @@ function renderImages(){
       title
     );
 
-
-    /* 문서구분 */
 
     const documentType =
       getDocumentType(record);
@@ -1342,8 +1424,6 @@ function renderImages(){
     }
 
 
-    /* 날짜 */
-
     const date =
       getDate(record);
 
@@ -1367,8 +1447,6 @@ function renderImages(){
     }
 
 
-    /* Notes */
-
     const notes =
       getNotes(record);
 
@@ -1391,8 +1469,6 @@ function renderImages(){
 
     }
 
-
-    /* 이미지 */
 
     const media =
       document.createElement(
@@ -1426,8 +1502,6 @@ function renderImages(){
       );
 
 
-      /* 📎 파일 보기 */
-
       const a =
         document.createElement(
           "a"
@@ -1456,8 +1530,6 @@ function renderImages(){
       media
     );
 
-
-    /* 📋 복사 / 🗑️ 삭제 */
 
     addActionButtons(
       record,
@@ -1514,11 +1586,11 @@ function renderVideos(){
         "section"
       );
 
+    /* ★ 동영상 색상 */
+
     card.className =
-      "card";
+      getCardClass("동영상");
 
-
-    /* 제목 */
 
     const title =
       document.createElement(
@@ -1535,8 +1607,6 @@ function renderVideos(){
       title
     );
 
-
-    /* 문서구분 */
 
     const documentType =
       getDocumentType(record);
@@ -1561,8 +1631,6 @@ function renderVideos(){
     }
 
 
-    /* 날짜 */
-
     const date =
       getDate(record);
 
@@ -1586,8 +1654,6 @@ function renderVideos(){
     }
 
 
-    /* Notes */
-
     const notes =
       getNotes(record);
 
@@ -1610,8 +1676,6 @@ function renderVideos(){
 
     }
 
-
-    /* 동영상 */
 
     const media =
       document.createElement(
@@ -1645,8 +1709,6 @@ function renderVideos(){
       );
 
 
-      /* 📎 파일 보기 */
-
       const a =
         document.createElement(
           "a"
@@ -1675,8 +1737,6 @@ function renderVideos(){
       media
     );
 
-
-    /* 📋 복사 / 🗑️ 삭제 */
 
     addActionButtons(
       record,
@@ -1805,8 +1865,6 @@ async function load(type){
 
     }
 
-
-    /* 최신 자료가 위로 오도록 정렬 */
 
     allRecords =
       Array.isArray(data.records)
