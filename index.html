@@ -1,486 +1,158 @@
-export default {
-  async fetch(request, env) {
-    const corsHeaders = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
-    };
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#3f7f4a">
+<title>카톡 기록</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+header{background:#3f7f4a;color:#fff;padding:18px 16px;text-align:center;font-size:22px;font-weight:700;position:sticky;top:0;z-index:5}
+main{padding:14px 12px 92px;max-width:720px;margin:auto}
+.status{text-align:center;color:#777;font-size:14px;padding:12px}
+.card{background:#fff;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card-title{font-size:18px;font-weight:700;margin-bottom:8px}
+.date{font-size:13px;color:#888;margin-bottom:10px}
+.notes{font-size:16px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.media{margin-top:12px}
+.media img,.media video{width:100%;max-height:520px;object-fit:contain;border-radius:10px;background:#eee}
+.media a{display:inline-block;margin-top:8px;color:#2f6f3a;text-decoration:none;font-weight:600}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #ddd;padding:8px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;z-index:10}
+.bottom button{border:0;border-radius:10px;background:#e9eee9;color:#285c31;font-size:14px;font-weight:700;padding:13px 4px;min-height:48px}
+.bottom button.active{background:#3f7f4a;color:#fff}
+.empty{text-align:center;padding:45px 10px;color:#777}
+</style>
+</head>
+<body>
+<header>카톡 기록</header>
+<main id="list"><div class="status">자료를 불러오는 중입니다...</div></main>
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: corsHeaders
-      });
-    }
+<nav class="bottom">
+<button data-type="일반문서">일반문서</button>
+<button data-type="중요문서">중요문서</button>
+<button data-type="이미지">이미지</button>
+<button data-type="동영상">동영상</button>
+</nav>
 
-    try {
-      // ==================================================
-      // 공통 설정
-      // ==================================================
+<script>
+const API_URL="https://kakao.s01021319376.workers.dev/";
+const list=document.getElementById("list");
+let allRecords=[];
 
-      const baseId = "appNd2h6D3V2qpcko";
-      const tableId = "tblcxDHtGlmSODfa6";
+function field(fields, names){
+  for(const n of names){
+    if(fields[n]!==undefined && fields[n]!==null && fields[n]!=="") return fields[n];
+  }
+  return "";
+}
 
-      // 기존 이미지 필드
-      const imageFieldId = "fldTa7LHs19K7wtUl";
-
-      // 동영상 필드
-      const videoFieldId = "fldO1KSkDDsPRkWv2";
-
-      // ==================================================
-      // GET
-      // Airtable → GitHub index.html 조회용
-      // ==================================================
-
-      if (request.method === "GET") {
-
-        const url = new URL(request.url);
-
-        const maxRecords =
-          url.searchParams.get("maxRecords") || "100";
-
-        const offset =
-          url.searchParams.get("offset") || "";
-
-        let airtableUrl =
-          `https://api.airtable.com/v0/${baseId}/${tableId}` +
-          `?pageSize=${Math.min(Number(maxRecords), 100)}` +
-          `&sort%5B0%5D%5Bfield%5D=Date` +
-          `&sort%5B0%5D%5Bdirection%5D=desc`;
-
-        if (offset) {
-          airtableUrl +=
-            `&offset=${encodeURIComponent(offset)}`;
-        }
-
-        const response =
-          await fetch(airtableUrl, {
-            method: "GET",
-            headers: {
-              "Authorization":
-                `Bearer ${env.AIRTABLE_TOKEN}`
-            }
-          });
-
-        const result =
-          await response.json();
-
-        if (!response.ok) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              step: "get_records",
-              error: result
-            }),
-            {
-              status: response.status,
-              headers: {
-                ...corsHeaders,
-                "Content-Type":
-                  "application/json"
-              }
-            }
-          );
-        }
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            records: result.records || [],
-            offset: result.offset || null
-          }),
-          {
-            status: 200,
-            headers: {
-              ...corsHeaders,
-              "Content-Type":
-                "application/json",
-              "Cache-Control":
-                "no-cache, no-store, must-revalidate"
-            }
-          }
-        );
-      }
-
-      // ==================================================
-      // POST
-      // 카톡공유 → Airtable 저장
-      // ==================================================
-
-      if (request.method !== "POST") {
-        return new Response("GET or POST only", {
-          status: 405,
-          headers: corsHeaders
-        });
-      }
-
-      const data = await request.json();
-
-      // ==================================================
-      // 문서구분
-      // ==================================================
-
-      const name =
-        data.name ||
-        data.Name ||
-        data.documentType ||
-        data.DocumentType ||
-        "";
-
-      // ==================================================
-      // 내용
-      // ==================================================
-
-      const notes =
-        data.notes ||
-        data.Notes ||
-        data.text ||
-        data.Text ||
-        data.input ||
-        data.Input ||
-        "";
-
-      // ==================================================
-      // 날짜
-      // ==================================================
-
-      const now = new Date();
-
-      const koreaDate =
-        new Intl.DateTimeFormat("en-CA", {
-          timeZone: "Asia/Seoul",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit"
-        }).format(now);
-
-      // ==================================================
-      // 이미지 / 동영상
-      // ==================================================
-
-      let fileBase64 =
-        data.image ||
-        data.Image ||
-        data.photo ||
-        data.Photo ||
-        data.video ||
-        data.Video ||
-        data.file ||
-        data.File ||
-        "";
-
-      let fileFilename =
-        data.imageFilename ||
-        data.ImageFilename ||
-        data.videoFilename ||
-        data.VideoFilename ||
-        data.filename ||
-        data.Filename ||
-        "";
-
-      let fileContentType =
-        data.imageContentType ||
-        data.ImageContentType ||
-        data.videoContentType ||
-        data.VideoContentType ||
-        data.contentType ||
-        data.ContentType ||
-        "";
-
-      const isVideo =
-        name === "동영상" ||
-        name === "Video" ||
-        name === "video";
-
-      // ==================================================
-      // Data URL 처리
-      // ==================================================
-
-      if (
-        typeof fileBase64 === "string" &&
-        fileBase64.startsWith("data:")
-      ) {
-        const commaIndex =
-          fileBase64.indexOf(",");
-
-        if (commaIndex !== -1) {
-
-          const header =
-            fileBase64.substring(
-              0,
-              commaIndex
-            );
-
-          fileBase64 =
-            fileBase64.substring(
-              commaIndex + 1
-            );
-
-          const match =
-            header.match(
-              /^data:(.*?);base64$/
-            );
-
-          if (
-            match &&
-            match[1]
-          ) {
-            fileContentType =
-              match[1];
-          }
+function attachmentList(fields){
+  const out=[];
+  for(const [key,value] of Object.entries(fields||{})){
+    if(Array.isArray(value)){
+      for(const item of value){
+        if(item && typeof item==="object" && item.url){
+          out.push({key,url:item.url,type:item.type||"",name:item.filename||key});
         }
       }
-
-      // ==================================================
-      // 파일 기본값
-      // ==================================================
-
-      if (isVideo) {
-
-        if (!fileContentType) {
-          fileContentType =
-            "video/mp4";
-        }
-
-        if (!fileFilename) {
-          fileFilename =
-            "video.mp4";
-        }
-
-      } else {
-
-        if (!fileContentType) {
-          fileContentType =
-            "image/jpeg";
-        }
-
-        if (!fileFilename) {
-          fileFilename =
-            "image.jpg";
-        }
-      }
-
-      // ==================================================
-      // Airtable 레코드 생성
-      // ==================================================
-
-      const createUrl =
-        `https://api.airtable.com/v0/${baseId}/${tableId}`;
-
-      const createResponse =
-        await fetch(createUrl, {
-          method: "POST",
-          headers: {
-            "Authorization":
-              `Bearer ${env.AIRTABLE_TOKEN}`,
-            "Content-Type":
-              "application/json"
-          },
-          body: JSON.stringify({
-            records: [
-              {
-                fields: {
-                  Name: name,
-                  Notes: notes,
-                  Date: koreaDate
-                }
-              }
-            ]
-          })
-        });
-
-      const createdResult =
-        await createResponse.json();
-
-      if (!createResponse.ok) {
-
-        return new Response(
-          JSON.stringify({
-            success: false,
-            step: "create_record",
-            error: createdResult
-          }),
-          {
-            status: createResponse.status,
-            headers: {
-              ...corsHeaders,
-              "Content-Type":
-                "application/json"
-            }
-          }
-        );
-      }
-
-      // ==================================================
-      // Record ID
-      // ==================================================
-
-      const recordId =
-        createdResult.records &&
-        createdResult.records[0] &&
-        createdResult.records[0].id;
-
-      if (!recordId) {
-
-        return new Response(
-          JSON.stringify({
-            success: false,
-            step: "get_record_id",
-            error:
-              "Airtable record ID를 가져오지 못했습니다."
-          }),
-          {
-            status: 500,
-            headers: {
-              ...corsHeaders,
-              "Content-Type":
-                "application/json"
-            }
-          }
-        );
-      }
-
-      // ==================================================
-      // 파일이 없으면 종료
-      // ==================================================
-
-      if (
-        !fileBase64 ||
-        typeof fileBase64 !== "string"
-      ) {
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            message:
-              "텍스트 문서 저장 완료",
-            recordId: recordId,
-            name: name,
-            date: koreaDate
-          }),
-          {
-            status: 200,
-            headers: {
-              ...corsHeaders,
-              "Content-Type":
-                "application/json"
-            }
-          }
-        );
-      }
-
-      // ==================================================
-      // 이미지 / 동영상 필드 선택
-      // ==================================================
-
-      const attachmentFieldId =
-        isVideo
-          ? videoFieldId
-          : imageFieldId;
-
-      // ==================================================
-      // Airtable Attachment 업로드
-      // ==================================================
-
-      const uploadUrl =
-        `https://content.airtable.com/v0/` +
-        `${baseId}/${recordId}/` +
-        `${attachmentFieldId}/uploadAttachment`;
-
-      const uploadResponse =
-        await fetch(uploadUrl, {
-          method: "POST",
-          headers: {
-            "Authorization":
-              `Bearer ${env.AIRTABLE_TOKEN}`,
-            "Content-Type":
-              "application/json"
-          },
-          body: JSON.stringify({
-            contentType:
-              fileContentType,
-            file:
-              fileBase64,
-            filename:
-              fileFilename
-          })
-        });
-
-      const uploadResult =
-        await uploadResponse.json();
-
-      if (!uploadResponse.ok) {
-
-        return new Response(
-          JSON.stringify({
-            success: false,
-            step:
-              isVideo
-                ? "upload_video"
-                : "upload_image",
-            message:
-              isVideo
-                ? "동영상 업로드에 실패했습니다."
-                : "이미지 업로드에 실패했습니다.",
-            recordId: recordId,
-            name: name,
-            date: koreaDate,
-            error: uploadResult
-          }),
-          {
-            status:
-              uploadResponse.status,
-            headers: {
-              ...corsHeaders,
-              "Content-Type":
-                "application/json"
-            }
-          }
-        );
-      }
-
-      // ==================================================
-      // 최종 성공
-      // ==================================================
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          message:
-            isVideo
-              ? "동영상이 저장되었습니다."
-              : "문서와 이미지가 모두 저장되었습니다.",
-          recordId: recordId,
-          name: name,
-          date: koreaDate,
-          file: uploadResult
-        }),
-        {
-          status: 200,
-          headers: {
-            ...corsHeaders,
-            "Content-Type":
-              "application/json"
-          }
-        }
-      );
-
-    } catch (error) {
-
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error:
-            error.message
-        }),
-        {
-          status: 500,
-          headers: {
-            ...corsHeaders,
-            "Content-Type":
-              "application/json"
-          }
-        }
-      );
     }
   }
-};
+  return out;
+}
+
+function render(records,type){
+  list.innerHTML="";
+  if(!records.length){
+    list.innerHTML=`<div class="empty">${type} 자료가 없습니다.</div>`;
+    return;
+  }
+
+  for(const record of records){
+    const f=record.fields||{};
+    const title=field(f,["Notes","내용","기록","제목"]) || type;
+    const notes=field(f,["Notes","내용","Text","text"]);
+    const date=field(f,["Date","날짜","작성일"]);
+    const files=attachmentList(f);
+
+    const card=document.createElement("section");
+    card.className="card";
+
+    const titleEl=document.createElement("div");
+    titleEl.className="card-title";
+    titleEl.textContent=field(f,["Title","제목","Name"]) || type;
+    card.appendChild(titleEl);
+
+    if(date){
+      const d=document.createElement("div");
+      d.className="date";
+      d.textContent=date;
+      card.appendChild(d);
+    }
+
+    if(notes){
+      const n=document.createElement("div");
+      n.className="notes";
+      n.textContent=notes;
+      card.appendChild(n);
+    }
+
+    if(files.length){
+      const media=document.createElement("div");
+      media.className="media";
+      for(const file of files){
+        const isVideo=type==="동영상" || file.type.startsWith("video/") || /\.(mp4|mov|m4v|webm)$/i.test(file.name);
+        if(isVideo){
+          const v=document.createElement("video");
+          v.src=file.url; v.controls=true; v.playsInline=true;
+          media.appendChild(v);
+        }else{
+          const img=document.createElement("img");
+          img.src=file.url; img.alt=file.name;
+          img.loading="lazy";
+          media.appendChild(img);
+        }
+        const a=document.createElement("a");
+        a.href=file.url; a.target="_blank"; a.rel="noopener";
+        a.textContent="파일 보기";
+        media.appendChild(a);
+      }
+      card.appendChild(media);
+    }
+
+    list.appendChild(card);
+  }
+}
+
+function matchesType(record,type){
+  const f=record.fields||{};
+  const name=String(field(f,["Name","문서구분","DocumentType","자료구분"])).trim();
+  return name===type;
+}
+
+async function load(type){
+  document.querySelectorAll(".bottom button").forEach(b=>b.classList.toggle("active",b.dataset.type===type));
+  list.innerHTML=`<div class="status">${type} 자료를 불러오는 중입니다...</div>`;
+
+  try{
+    if(!allRecords.length){
+      const res=await fetch(API_URL+"?maxRecords=100");
+      if(!res.ok) throw new Error("조회 실패");
+      const data=await res.json();
+      if(!data.success) throw new Error("Worker 조회 실패");
+      allRecords=data.records||[];
+    }
+    render(allRecords.filter(r=>matchesType(r,type)),type);
+  }catch(e){
+    list.innerHTML=`<div class="empty">자료를 가져오지 못했습니다.<br><small>${e.message}</small></div>`;
+  }
+}
+
+document.querySelectorAll(".bottom button").forEach(btn=>{
+  btn.addEventListener("click",()=>load(btn.dataset.type));
+});
+
+load("일반문서");
+</script>
+</body>
+</html>
