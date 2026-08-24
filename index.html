@@ -1,334 +1,486 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+export default {
+  async fetch(request, env) {
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    };
 
-  <title>카카오톡 기록</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: corsHeaders
+      });
     }
 
-    body {
-      margin: 0;
-      padding: 20px;
-      background: #f5f6f8;
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-      color: #222;
-    }
+    try {
+      // ==================================================
+      // 공통 설정
+      // ==================================================
 
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
-    }
+      const baseId = "appNd2h6D3V2qpcko";
+      const tableId = "tblcxDHtGlmSODfa6";
 
-    h1 {
-      text-align: center;
-      margin: 20px 0 25px;
-      font-size: 26px;
-    }
+      // 기존 이미지 필드
+      const imageFieldId = "fldTa7LHs19K7wtUl";
 
-    .card {
-      background: #fff;
-      padding: 22px;
-      border-radius: 16px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
+      // 동영상 필드
+      const videoFieldId = "fldO1KSkDDsPRkWv2";
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
+      // ==================================================
+      // GET
+      // Airtable → GitHub index.html 조회용
+      // ==================================================
 
-    input,
-    textarea {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      font-size: 16px;
-      outline: none;
-    }
+      if (request.method === "GET") {
 
-    input:focus,
-    textarea:focus {
-      border-color: #777;
-    }
+        const url = new URL(request.url);
 
-    textarea {
-      min-height: 250px;
-      resize: vertical;
-      line-height: 1.6;
-    }
+        const maxRecords =
+          url.searchParams.get("maxRecords") || "100";
 
-    .date {
-      margin-top: 18px;
-    }
+        const offset =
+          url.searchParams.get("offset") || "";
 
-    .content {
-      margin-top: 18px;
-    }
+        let airtableUrl =
+          `https://api.airtable.com/v0/${baseId}/${tableId}` +
+          `?pageSize=${Math.min(Number(maxRecords), 100)}` +
+          `&sort%5B0%5D%5Bfield%5D=Date` +
+          `&sort%5B0%5D%5Bdirection%5D=desc`;
 
-    button {
-      width: 100%;
-      margin-top: 20px;
-      padding: 15px;
-      border: 0;
-      border-radius: 10px;
-      background: #222;
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    button:disabled {
-      opacity: 0.5;
-    }
-
-    #message {
-      text-align: center;
-      margin-top: 15px;
-      min-height: 22px;
-      font-size: 14px;
-    }
-  </style>
-</head>
-
-<body>
-
-<div class="container">
-
-  <h1>카카오톡 기록</h1>
-
-  <div class="card">
-
-    <!-- 제목 -->
-    <label for="name">Name</label>
-
-    <input
-      id="name"
-      type="text"
-      placeholder="제목을 입력하세요"
-      value="카카오톡 기록"
-    >
-
-
-    <!-- 날짜 -->
-    <div class="date">
-
-      <label for="date">Date</label>
-
-      <input
-        id="date"
-        type="datetime-local"
-      >
-
-    </div>
-
-
-    <!-- 내용 -->
-    <div class="content">
-
-      <label for="notes">Notes</label>
-
-      <textarea
-        id="notes"
-        placeholder="카카오톡 내용을 붙여넣으세요."
-      ></textarea>
-
-    </div>
-
-
-    <!-- 저장 -->
-    <button id="saveButton">
-      Airtable에 저장
-    </button>
-
-    <div id="message"></div>
-
-  </div>
-
-</div>
-
-
-<script>
-
-  // ----------------------------------------
-  // Cloudflare Worker 주소
-  // ----------------------------------------
-
-  const WORKER_URL =
-    "https://kakao.s01021319376.workers.dev";
-
-
-  // ----------------------------------------
-  // HTML 요소
-  // ----------------------------------------
-
-  const nameInput =
-    document.getElementById("name");
-
-  const dateInput =
-    document.getElementById("date");
-
-  const notesInput =
-    document.getElementById("notes");
-
-  const saveButton =
-    document.getElementById("saveButton");
-
-  const message =
-    document.getElementById("message");
-
-
-  // ----------------------------------------
-  // 현재 날짜/시간 자동 입력
-  // ----------------------------------------
-
-  function setCurrentDateTime() {
-
-    const now = new Date();
-
-    const year =
-      now.getFullYear();
-
-    const month =
-      String(now.getMonth() + 1)
-        .padStart(2, "0");
-
-    const day =
-      String(now.getDate())
-        .padStart(2, "0");
-
-    const hour =
-      String(now.getHours())
-        .padStart(2, "0");
-
-    const minute =
-      String(now.getMinutes())
-        .padStart(2, "0");
-
-    dateInput.value =
-      `${year}-${month}-${day}T${hour}:${minute}`;
-  }
-
-
-  setCurrentDateTime();
-
-
-  // ----------------------------------------
-  // 저장 버튼
-  // ----------------------------------------
-
-  saveButton.addEventListener(
-    "click",
-    async () => {
-
-      const name =
-        nameInput.value.trim();
-
-      const notes =
-        notesInput.value.trim();
-
-      const date =
-        dateInput.value;
-
-
-      // 내용 확인
-
-      if (!notes) {
-
-        message.textContent =
-          "카카오톡 내용을 입력해주세요.";
-
-        return;
-      }
-
-
-      saveButton.disabled = true;
-
-      message.textContent =
-        "Airtable에 저장하는 중입니다...";
-
-
-      try {
+        if (offset) {
+          airtableUrl +=
+            `&offset=${encodeURIComponent(offset)}`;
+        }
 
         const response =
-          await fetch(
-            WORKER_URL,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body: JSON.stringify({
-                name: name,
-                notes: notes,
-                date: date
-              })
+          await fetch(airtableUrl, {
+            method: "GET",
+            headers: {
+              "Authorization":
+                `Bearer ${env.AIRTABLE_TOKEN}`
             }
-          );
-
+          });
 
         const result =
           await response.json();
 
-
         if (!response.ok) {
-
-          throw new Error(
-            result.error ||
-            "저장에 실패했습니다."
+          return new Response(
+            JSON.stringify({
+              success: false,
+              step: "get_records",
+              error: result
+            }),
+            {
+              status: response.status,
+              headers: {
+                ...corsHeaders,
+                "Content-Type":
+                  "application/json"
+              }
+            }
           );
-
         }
 
-
-        // 성공
-
-        message.textContent =
-          "✓ Airtable에 저장되었습니다.";
-
-
-        // 내용 비우기
-
-        notesInput.value = "";
-
-
-        // 날짜 갱신
-
-        setCurrentDateTime();
-
-
-      } catch (error) {
-
-        console.error(error);
-
-        message.textContent =
-          "저장 실패: " +
-          error.message;
-
-
-      } finally {
-
-        saveButton.disabled = false;
-
+        return new Response(
+          JSON.stringify({
+            success: true,
+            records: result.records || [],
+            offset: result.offset || null
+          }),
+          {
+            status: 200,
+            headers: {
+              ...corsHeaders,
+              "Content-Type":
+                "application/json",
+              "Cache-Control":
+                "no-cache, no-store, must-revalidate"
+            }
+          }
+        );
       }
 
+      // ==================================================
+      // POST
+      // 카톡공유 → Airtable 저장
+      // ==================================================
+
+      if (request.method !== "POST") {
+        return new Response("GET or POST only", {
+          status: 405,
+          headers: corsHeaders
+        });
+      }
+
+      const data = await request.json();
+
+      // ==================================================
+      // 문서구분
+      // ==================================================
+
+      const name =
+        data.name ||
+        data.Name ||
+        data.documentType ||
+        data.DocumentType ||
+        "";
+
+      // ==================================================
+      // 내용
+      // ==================================================
+
+      const notes =
+        data.notes ||
+        data.Notes ||
+        data.text ||
+        data.Text ||
+        data.input ||
+        data.Input ||
+        "";
+
+      // ==================================================
+      // 날짜
+      // ==================================================
+
+      const now = new Date();
+
+      const koreaDate =
+        new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Seoul",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit"
+        }).format(now);
+
+      // ==================================================
+      // 이미지 / 동영상
+      // ==================================================
+
+      let fileBase64 =
+        data.image ||
+        data.Image ||
+        data.photo ||
+        data.Photo ||
+        data.video ||
+        data.Video ||
+        data.file ||
+        data.File ||
+        "";
+
+      let fileFilename =
+        data.imageFilename ||
+        data.ImageFilename ||
+        data.videoFilename ||
+        data.VideoFilename ||
+        data.filename ||
+        data.Filename ||
+        "";
+
+      let fileContentType =
+        data.imageContentType ||
+        data.ImageContentType ||
+        data.videoContentType ||
+        data.VideoContentType ||
+        data.contentType ||
+        data.ContentType ||
+        "";
+
+      const isVideo =
+        name === "동영상" ||
+        name === "Video" ||
+        name === "video";
+
+      // ==================================================
+      // Data URL 처리
+      // ==================================================
+
+      if (
+        typeof fileBase64 === "string" &&
+        fileBase64.startsWith("data:")
+      ) {
+        const commaIndex =
+          fileBase64.indexOf(",");
+
+        if (commaIndex !== -1) {
+
+          const header =
+            fileBase64.substring(
+              0,
+              commaIndex
+            );
+
+          fileBase64 =
+            fileBase64.substring(
+              commaIndex + 1
+            );
+
+          const match =
+            header.match(
+              /^data:(.*?);base64$/
+            );
+
+          if (
+            match &&
+            match[1]
+          ) {
+            fileContentType =
+              match[1];
+          }
+        }
+      }
+
+      // ==================================================
+      // 파일 기본값
+      // ==================================================
+
+      if (isVideo) {
+
+        if (!fileContentType) {
+          fileContentType =
+            "video/mp4";
+        }
+
+        if (!fileFilename) {
+          fileFilename =
+            "video.mp4";
+        }
+
+      } else {
+
+        if (!fileContentType) {
+          fileContentType =
+            "image/jpeg";
+        }
+
+        if (!fileFilename) {
+          fileFilename =
+            "image.jpg";
+        }
+      }
+
+      // ==================================================
+      // Airtable 레코드 생성
+      // ==================================================
+
+      const createUrl =
+        `https://api.airtable.com/v0/${baseId}/${tableId}`;
+
+      const createResponse =
+        await fetch(createUrl, {
+          method: "POST",
+          headers: {
+            "Authorization":
+              `Bearer ${env.AIRTABLE_TOKEN}`,
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify({
+            records: [
+              {
+                fields: {
+                  Name: name,
+                  Notes: notes,
+                  Date: koreaDate
+                }
+              }
+            ]
+          })
+        });
+
+      const createdResult =
+        await createResponse.json();
+
+      if (!createResponse.ok) {
+
+        return new Response(
+          JSON.stringify({
+            success: false,
+            step: "create_record",
+            error: createdResult
+          }),
+          {
+            status: createResponse.status,
+            headers: {
+              ...corsHeaders,
+              "Content-Type":
+                "application/json"
+            }
+          }
+        );
+      }
+
+      // ==================================================
+      // Record ID
+      // ==================================================
+
+      const recordId =
+        createdResult.records &&
+        createdResult.records[0] &&
+        createdResult.records[0].id;
+
+      if (!recordId) {
+
+        return new Response(
+          JSON.stringify({
+            success: false,
+            step: "get_record_id",
+            error:
+              "Airtable record ID를 가져오지 못했습니다."
+          }),
+          {
+            status: 500,
+            headers: {
+              ...corsHeaders,
+              "Content-Type":
+                "application/json"
+            }
+          }
+        );
+      }
+
+      // ==================================================
+      // 파일이 없으면 종료
+      // ==================================================
+
+      if (
+        !fileBase64 ||
+        typeof fileBase64 !== "string"
+      ) {
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message:
+              "텍스트 문서 저장 완료",
+            recordId: recordId,
+            name: name,
+            date: koreaDate
+          }),
+          {
+            status: 200,
+            headers: {
+              ...corsHeaders,
+              "Content-Type":
+                "application/json"
+            }
+          }
+        );
+      }
+
+      // ==================================================
+      // 이미지 / 동영상 필드 선택
+      // ==================================================
+
+      const attachmentFieldId =
+        isVideo
+          ? videoFieldId
+          : imageFieldId;
+
+      // ==================================================
+      // Airtable Attachment 업로드
+      // ==================================================
+
+      const uploadUrl =
+        `https://content.airtable.com/v0/` +
+        `${baseId}/${recordId}/` +
+        `${attachmentFieldId}/uploadAttachment`;
+
+      const uploadResponse =
+        await fetch(uploadUrl, {
+          method: "POST",
+          headers: {
+            "Authorization":
+              `Bearer ${env.AIRTABLE_TOKEN}`,
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify({
+            contentType:
+              fileContentType,
+            file:
+              fileBase64,
+            filename:
+              fileFilename
+          })
+        });
+
+      const uploadResult =
+        await uploadResponse.json();
+
+      if (!uploadResponse.ok) {
+
+        return new Response(
+          JSON.stringify({
+            success: false,
+            step:
+              isVideo
+                ? "upload_video"
+                : "upload_image",
+            message:
+              isVideo
+                ? "동영상 업로드에 실패했습니다."
+                : "이미지 업로드에 실패했습니다.",
+            recordId: recordId,
+            name: name,
+            date: koreaDate,
+            error: uploadResult
+          }),
+          {
+            status:
+              uploadResponse.status,
+            headers: {
+              ...corsHeaders,
+              "Content-Type":
+                "application/json"
+            }
+          }
+        );
+      }
+
+      // ==================================================
+      // 최종 성공
+      // ==================================================
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message:
+            isVideo
+              ? "동영상이 저장되었습니다."
+              : "문서와 이미지가 모두 저장되었습니다.",
+          recordId: recordId,
+          name: name,
+          date: koreaDate,
+          file: uploadResult
+        }),
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "Content-Type":
+              "application/json"
+          }
+        }
+      );
+
+    } catch (error) {
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error:
+            error.message
+        }),
+        {
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            "Content-Type":
+              "application/json"
+          }
+        }
+      );
     }
-  );
-
-</script>
-
-</body>
-</html>
+  }
+};
