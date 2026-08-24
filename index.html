@@ -4,10 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#3f7f4a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="봉사준비">
 
-<title>봉사준비</title>
+<title>카톡 기록</title>
 
 <style>
 *{
@@ -89,6 +87,7 @@ main{
   margin-bottom:8px;
 }
 
+
 /* =====================================================
    📎 파일 보기 버튼
 ===================================================== */
@@ -129,12 +128,6 @@ main{
 .media a:active{
   transform:scale(.97);
   background:#d5e8d8;
-}
-
-.media-title{
-  font-size:14px;
-  color:#777;
-  margin-bottom:8px;
 }
 
 
@@ -215,8 +208,14 @@ main{
 
 
 /* =====================================================
-   하단 메뉴
+   기타
 ===================================================== */
+
+.media-title{
+  font-size:14px;
+  color:#777;
+  margin-bottom:8px;
+}
 
 .bottom{
   position:fixed;
@@ -266,6 +265,7 @@ main{
 </style>
 </head>
 
+
 <body>
 
 <header id="pageTitle">카톡 기록</header>
@@ -275,6 +275,7 @@ main{
     자료를 불러오는 중입니다...
   </div>
 </main>
+
 
 <nav class="bottom">
 
@@ -296,6 +297,7 @@ main{
 
 </nav>
 
+
 <script>
 
 /* =====================================================
@@ -305,20 +307,24 @@ main{
 const API_URL =
   "https://kakao.s01021319376.workers.dev/";
 
+
 const AIRTABLE_VIEW =
   "viwreVjNBkgyyOG7C";
+
 
 const list =
   document.getElementById("list");
 
+
 const pageTitle =
   document.getElementById("pageTitle");
+
 
 let allRecords = [];
 
 
 /* =====================================================
-   URL의 type 읽기
+   URL의 ?type= 값 읽기
 ===================================================== */
 
 function getTypeFromURL(){
@@ -376,7 +382,7 @@ function setPageTitle(type){
 
 
 /* =====================================================
-   Airtable 필드 찾기
+   필드 찾기
 ===================================================== */
 
 function field(fields,names){
@@ -502,7 +508,6 @@ function isImageFile(file){
 
   return /\.(jpg|jpeg|png|gif|webp|heic|heif)$/i
     .test(file.name);
-
 }
 
 
@@ -523,7 +528,6 @@ function isVideoFile(file){
 
   return /\.(mp4|mov|m4v|webm|avi|mkv)$/i
     .test(file.name);
-
 }
 
 
@@ -544,7 +548,6 @@ function getDate(record){
       "작성일"
     ]
   );
-
 }
 
 
@@ -565,12 +568,11 @@ function getTitle(record){
       "Name"
     ]
   ) || "카톡 기록";
-
 }
 
 
 /* =====================================================
-   Notes
+   내용
 ===================================================== */
 
 function getNotes(record){
@@ -585,8 +587,8 @@ function getNotes(record){
       "내용",
       "Text",
       "text"
-    );
-
+    ]
+  );
 }
 
 
@@ -597,20 +599,19 @@ function getNotes(record){
 function getRecordSortTime(record){
 
   if(
-    record &&
     record.createdTime
   ){
 
-    const time =
+    const created =
       Date.parse(
         record.createdTime
       );
 
     if(
-      !Number.isNaN(time)
+      !Number.isNaN(created)
     ){
 
-      return time;
+      return created;
 
     }
 
@@ -619,15 +620,14 @@ function getRecordSortTime(record){
   const dateValue =
     getDate(record);
 
-  const time =
+  const parsed =
     Date.parse(
       String(dateValue)
     );
 
-  return Number.isNaN(time)
+  return Number.isNaN(parsed)
     ? 0
-    : time;
-
+    : parsed;
 }
 
 
@@ -637,302 +637,6 @@ function sortNewestFirst(records){
     (a,b) =>
       getRecordSortTime(b) -
       getRecordSortTime(a)
-  );
-
-}
-
-
-/* =====================================================
-   📋 복사 기능
-===================================================== */
-
-async function copyNotes(record){
-
-  const notes =
-    getNotes(record);
-
-  if(!notes){
-
-    alert(
-      "복사할 내용이 없습니다."
-    );
-
-    return;
-
-  }
-
-  try{
-
-    if(
-      navigator.clipboard &&
-      window.isSecureContext
-    ){
-
-      await navigator.clipboard.writeText(
-        String(notes)
-      );
-
-    }else{
-
-      const textarea =
-        document.createElement("textarea");
-
-      textarea.value =
-        String(notes);
-
-      textarea.style.position =
-        "fixed";
-
-      textarea.style.left =
-        "-9999px";
-
-      textarea.style.top =
-        "0";
-
-      document.body.appendChild(
-        textarea
-      );
-
-      textarea.focus();
-      textarea.select();
-
-      const success =
-        document.execCommand(
-          "copy"
-        );
-
-      textarea.remove();
-
-      if(!success){
-
-        throw new Error(
-          "복사할 수 없습니다."
-        );
-
-      }
-
-    }
-
-    alert(
-      "📋 복사되었습니다."
-    );
-
-  }catch(error){
-
-    console.error(error);
-
-    alert(
-      "복사하지 못했습니다.\n\n" +
-      error.message
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   🗑️ 삭제 기능
-===================================================== */
-
-async function deleteRecord(
-  record,
-  card
-){
-
-  const recordId =
-    record &&
-    record.id;
-
-  if(!recordId){
-
-    alert(
-      "삭제할 자료의 ID를 찾지 못했습니다."
-    );
-
-    return;
-
-  }
-
-  const title =
-    getTitle(record);
-
-  const confirmed =
-    window.confirm(
-      `"${title}" 자료를 삭제하시겠습니까?\n\n삭제하면 Airtable에서도 실제로 삭제됩니다.`
-    );
-
-  if(!confirmed){
-
-    return;
-
-  }
-
-  const button =
-    card.querySelector(
-      ".delete-button"
-    );
-
-  if(button){
-
-    button.disabled =
-      true;
-
-    button.textContent =
-      "삭제 중...";
-
-  }
-
-  try{
-
-    const response =
-      await fetch(
-        API_URL,
-        {
-
-          method:"DELETE",
-
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify({
-              recordId:
-                recordId
-            })
-
-        }
-      );
-
-    const data =
-      await response.json();
-
-    if(
-      !response.ok ||
-      !data.success
-    ){
-
-      throw new Error(
-        data.error?.message ||
-        data.error ||
-        "자료 삭제에 실패했습니다."
-      );
-
-    }
-
-    await load(
-      getTypeFromURL()
-    );
-
-  }catch(error){
-
-    console.error(error);
-
-    alert(
-      "자료를 삭제하지 못했습니다.\n\n" +
-      error.message
-    );
-
-    if(button){
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        "🗑️ 삭제";
-
-    }
-
-  }
-
-}
-
-
-/* =====================================================
-   📋 복사 + 🗑️ 삭제 버튼 생성
-===================================================== */
-
-function addActionButtons(
-  record,
-  card
-){
-
-  const actionBox =
-    document.createElement(
-      "div"
-    );
-
-  actionBox.className =
-    "action-buttons";
-
-
-  /* 📋 복사 */
-
-  const copyButton =
-    document.createElement(
-      "button"
-    );
-
-  copyButton.type =
-    "button";
-
-  copyButton.className =
-    "copy-button";
-
-  copyButton.textContent =
-    "📋 복사";
-
-  copyButton.addEventListener(
-    "click",
-    () => {
-
-      copyNotes(record);
-
-    }
-  );
-
-
-  /* 🗑️ 삭제 */
-
-  const deleteButton =
-    document.createElement(
-      "button"
-    );
-
-  deleteButton.type =
-    "button";
-
-  deleteButton.className =
-    "delete-button";
-
-  deleteButton.textContent =
-    "🗑️ 삭제";
-
-  deleteButton.addEventListener(
-    "click",
-    () => {
-
-      deleteRecord(
-        record,
-        card
-      );
-
-    }
-  );
-
-
-  actionBox.appendChild(
-    copyButton
-  );
-
-  actionBox.appendChild(
-    deleteButton
-  );
-
-  card.appendChild(
-    actionBox
   );
 
 }
@@ -997,7 +701,6 @@ function getImageRecords(){
         a.record
       )
   );
-
 }
 
 
@@ -1044,6 +747,285 @@ function getVideoRecords(){
         a.record
       )
   );
+}
+
+
+/* =====================================================
+   📋 복사
+===================================================== */
+
+async function copyNotes(record){
+
+  const notes =
+    getNotes(record);
+
+  if(!notes){
+
+    alert(
+      "복사할 내용이 없습니다."
+    );
+
+    return;
+  }
+
+  try{
+
+    await navigator.clipboard.writeText(
+      String(notes)
+    );
+
+    alert(
+      "📋 복사되었습니다."
+    );
+
+  }catch(error){
+
+    const textarea =
+      document.createElement(
+        "textarea"
+      );
+
+    textarea.value =
+      String(notes);
+
+    textarea.style.position =
+      "fixed";
+
+    textarea.style.left =
+      "-9999px";
+
+    document.body.appendChild(
+      textarea
+    );
+
+    textarea.focus();
+
+    textarea.select();
+
+    document.execCommand(
+      "copy"
+    );
+
+    textarea.remove();
+
+    alert(
+      "📋 복사되었습니다."
+    );
+  }
+
+}
+
+
+/* =====================================================
+   🗑️ 삭제
+===================================================== */
+
+async function deleteRecord(
+  record,
+  card
+){
+
+  const recordId =
+    record.id;
+
+  if(!recordId){
+
+    alert(
+      "삭제할 자료의 ID를 찾지 못했습니다."
+    );
+
+    return;
+  }
+
+
+  const confirmed =
+    confirm(
+      "이 자료를 삭제하시겠습니까?\n\n" +
+      "삭제하면 Airtable에서도 삭제됩니다."
+    );
+
+
+  if(!confirmed){
+
+    return;
+  }
+
+
+  const deleteButton =
+    card.querySelector(
+      ".delete-button"
+    );
+
+
+  if(deleteButton){
+
+    deleteButton.disabled =
+      true;
+
+    deleteButton.textContent =
+      "삭제 중...";
+
+  }
+
+
+  try{
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+
+          method:"DELETE",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:JSON.stringify({
+            recordId:
+              recordId
+          })
+
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !result.success
+    ){
+
+      throw new Error(
+        result.error?.message ||
+        result.error ||
+        "삭제에 실패했습니다."
+      );
+
+    }
+
+
+    await load(
+      getTypeFromURL()
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "삭제하지 못했습니다.\n\n" +
+      error.message
+    );
+
+
+    if(deleteButton){
+
+      deleteButton.disabled =
+        false;
+
+      deleteButton.textContent =
+        "🗑️ 삭제";
+
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   📋 복사 / 🗑️ 삭제 버튼 만들기
+===================================================== */
+
+function addActionButtons(
+  record,
+  card
+){
+
+  const actionButtons =
+    document.createElement(
+      "div"
+    );
+
+  actionButtons.className =
+    "action-buttons";
+
+
+  /* 📋 복사 */
+
+  const copyButton =
+    document.createElement(
+      "button"
+    );
+
+  copyButton.type =
+    "button";
+
+  copyButton.className =
+    "copy-button";
+
+  copyButton.textContent =
+    "📋 복사";
+
+
+  copyButton.addEventListener(
+    "click",
+    function(){
+
+      copyNotes(record);
+
+    }
+  );
+
+
+  /* 🗑️ 삭제 */
+
+  const deleteButton =
+    document.createElement(
+      "button"
+    );
+
+  deleteButton.type =
+    "button";
+
+  deleteButton.className =
+    "delete-button";
+
+  deleteButton.textContent =
+    "🗑️ 삭제";
+
+
+  deleteButton.addEventListener(
+    "click",
+    function(){
+
+      deleteRecord(
+        record,
+        card
+      );
+
+    }
+  );
+
+
+  actionButtons.appendChild(
+    copyButton
+  );
+
+  actionButtons.appendChild(
+    deleteButton
+  );
+
+
+  card.appendChild(
+    actionButtons
+  );
 
 }
 
@@ -1059,6 +1041,7 @@ function renderDocuments(
 
   list.innerHTML = "";
 
+
   if(!records.length){
 
     list.innerHTML =
@@ -1067,8 +1050,8 @@ function renderDocuments(
       </div>`;
 
     return;
-
   }
+
 
   for(
     const record of records
@@ -1158,6 +1141,7 @@ function renderDocuments(
         record.fields || {}
       );
 
+
     if(files.length){
 
       const media =
@@ -1167,6 +1151,7 @@ function renderDocuments(
 
       media.className =
         "media";
+
 
       for(
         const file of files
@@ -1194,7 +1179,8 @@ function renderDocuments(
             video
           );
 
-        }else if(
+        }
+        else if(
           isImageFile(file)
         ){
 
@@ -1244,6 +1230,7 @@ function renderDocuments(
 
       }
 
+
       card.appendChild(
         media
       );
@@ -1251,12 +1238,13 @@ function renderDocuments(
     }
 
 
-    /* 📋 복사 + 🗑️ 삭제 */
+    /* 📋 복사 / 🗑️ 삭제 */
 
     addActionButtons(
       record,
       card
     );
+
 
     list.appendChild(
       card
@@ -1276,7 +1264,9 @@ function renderImages(){
   const imageRecords =
     getImageRecords();
 
+
   list.innerHTML = "";
+
 
   if(!imageRecords.length){
 
@@ -1286,8 +1276,8 @@ function renderImages(){
       </div>`;
 
     return;
-
   }
+
 
   for(
     const item of imageRecords
@@ -1299,6 +1289,7 @@ function renderImages(){
     const files =
       item.files;
 
+
     const card =
       document.createElement(
         "section"
@@ -1307,6 +1298,8 @@ function renderImages(){
     card.className =
       "card";
 
+
+    /* 제목 */
 
     const title =
       document.createElement(
@@ -1324,6 +1317,8 @@ function renderImages(){
     );
 
 
+    /* 문서구분 */
+
     const documentType =
       getDocumentType(record);
 
@@ -1338,8 +1333,7 @@ function renderImages(){
         "media-title";
 
       typeEl.textContent =
-        "📁 " +
-        documentType;
+        "📁 " + documentType;
 
       card.appendChild(
         typeEl
@@ -1347,6 +1341,8 @@ function renderImages(){
 
     }
 
+
+    /* 날짜 */
 
     const date =
       getDate(record);
@@ -1395,6 +1391,8 @@ function renderImages(){
 
     }
 
+
+    /* 이미지 */
 
     const media =
       document.createElement(
@@ -1453,17 +1451,19 @@ function renderImages(){
 
     }
 
+
     card.appendChild(
       media
     );
 
 
-    /* 📋 복사 + 🗑️ 삭제 */
+    /* 📋 복사 / 🗑️ 삭제 */
 
     addActionButtons(
       record,
       card
     );
+
 
     list.appendChild(
       card
@@ -1483,7 +1483,9 @@ function renderVideos(){
   const videoRecords =
     getVideoRecords();
 
+
   list.innerHTML = "";
+
 
   if(!videoRecords.length){
 
@@ -1493,8 +1495,8 @@ function renderVideos(){
       </div>`;
 
     return;
-
   }
+
 
   for(
     const item of videoRecords
@@ -1506,6 +1508,7 @@ function renderVideos(){
     const files =
       item.files;
 
+
     const card =
       document.createElement(
         "section"
@@ -1514,6 +1517,8 @@ function renderVideos(){
     card.className =
       "card";
 
+
+    /* 제목 */
 
     const title =
       document.createElement(
@@ -1531,6 +1536,8 @@ function renderVideos(){
     );
 
 
+    /* 문서구분 */
+
     const documentType =
       getDocumentType(record);
 
@@ -1545,8 +1552,7 @@ function renderVideos(){
         "media-title";
 
       typeEl.textContent =
-        "📁 " +
-        documentType;
+        "📁 " + documentType;
 
       card.appendChild(
         typeEl
@@ -1554,6 +1560,8 @@ function renderVideos(){
 
     }
 
+
+    /* 날짜 */
 
     const date =
       getDate(record);
@@ -1602,6 +1610,8 @@ function renderVideos(){
 
     }
 
+
+    /* 동영상 */
 
     const media =
       document.createElement(
@@ -1660,17 +1670,19 @@ function renderVideos(){
 
     }
 
+
     card.appendChild(
       media
     );
 
 
-    /* 📋 복사 + 🗑️ 삭제 */
+    /* 📋 복사 / 🗑️ 삭제 */
 
     addActionButtons(
       record,
       card
     );
+
 
     list.appendChild(
       card
@@ -1689,6 +1701,7 @@ function render(type){
 
   setPageTitle(type);
 
+
   if(
     type === "이미지"
   ){
@@ -1696,8 +1709,8 @@ function render(type){
     renderImages();
 
     return;
-
   }
+
 
   if(
     type === "동영상"
@@ -1706,8 +1719,8 @@ function render(type){
     renderVideos();
 
     return;
-
   }
+
 
   renderDocuments(
     getDocumentRecords(type),
@@ -1738,12 +1751,15 @@ async function load(type){
       }
     );
 
+
   setPageTitle(type);
+
 
   list.innerHTML =
     `<div class="status">
       ${type} 자료를 불러오는 중입니다...
     </div>`;
+
 
   try{
 
@@ -1757,6 +1773,7 @@ async function load(type){
       "&t=" +
       Date.now();
 
+
     const response =
       await fetch(
         requestUrl,
@@ -1764,6 +1781,7 @@ async function load(type){
           cache:"no-store"
         }
       );
+
 
     if(!response.ok){
 
@@ -1774,8 +1792,10 @@ async function load(type){
 
     }
 
+
     const data =
       await response.json();
+
 
     if(!data.success){
 
@@ -1785,6 +1805,9 @@ async function load(type){
 
     }
 
+
+    /* 최신 자료가 위로 오도록 정렬 */
+
     allRecords =
       Array.isArray(data.records)
         ? sortNewestFirst(
@@ -1792,11 +1815,14 @@ async function load(type){
           )
         : [];
 
+
     render(type);
+
 
   }catch(error){
 
     console.error(error);
+
 
     list.innerHTML =
       `<div class="error">
@@ -1834,6 +1860,7 @@ document
           const type =
             button.dataset.type;
 
+
           const newUrl =
             window.location.pathname +
             "?type=" +
@@ -1841,11 +1868,13 @@ document
               type
             );
 
+
           window.history.pushState(
             {},
             "",
             newUrl
           );
+
 
           load(type);
 
@@ -1857,7 +1886,7 @@ document
 
 
 /* =====================================================
-   뒤로가기
+   브라우저 뒤로가기
 ===================================================== */
 
 window.addEventListener(
@@ -1878,6 +1907,7 @@ window.addEventListener(
 
 const initialType =
   getTypeFromURL();
+
 
 load(initialType);
 
