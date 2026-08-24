@@ -135,6 +135,24 @@ main{
   color:#fff;
 }
 
+.delete-button{
+  display:block;
+  width:100%;
+  margin-top:14px;
+  padding:10px 12px;
+  border:1px solid #e0b0b0;
+  border-radius:10px;
+  background:#fff5f5;
+  color:#b00000;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.delete-button:active{
+  background:#ffe5e5;
+}
+
 .empty{
   text-align:center;
   padding:45px 10px;
@@ -492,8 +510,114 @@ function sortNewestFirst(records){
 
 
 /* =====================================================
+   자료 삭제
+===================================================== */
+
+async function deleteRecord(record, card){
+
+  const recordId =
+    record && record.id;
+
+  if(!recordId){
+    alert("삭제할 자료의 ID를 찾지 못했습니다.");
+    return;
+  }
+
+  const title =
+    getTitle(record);
+
+  const confirmed =
+    window.confirm(
+      `"${title}" 자료를 삭제하시겠습니까?\n\n삭제하면 Airtable에서도 실제로 삭제됩니다.`
+    );
+
+  if(!confirmed){
+    return;
+  }
+
+  const button =
+    card.querySelector(".delete-button");
+
+  if(button){
+    button.disabled = true;
+    button.textContent = "삭제 중...";
+  }
+
+  try{
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method:"DELETE",
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+          body:JSON.stringify({
+            recordId:recordId
+          })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if(!response.ok || !data.success){
+      throw new Error(
+        data.error?.message ||
+        data.error ||
+        "자료 삭제에 실패했습니다."
+      );
+    }
+
+    card.remove();
+
+    // 현재 화면의 목록도 즉시 최신 상태로 다시 읽습니다.
+    await load(
+      getTypeFromURL()
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "자료를 삭제하지 못했습니다.\n\n" +
+      error.message
+    );
+
+    if(button){
+      button.disabled = false;
+      button.textContent = "🗑️ 삭제";
+    }
+  }
+}
+
+function addDeleteButton(record, card){
+
+  const button =
+    document.createElement("button");
+
+  button.type = "button";
+  button.className = "delete-button";
+  button.textContent = "🗑️ 삭제";
+
+  button.addEventListener(
+    "click",
+    () => {
+      deleteRecord(record, card);
+    }
+  );
+
+  card.appendChild(button);
+}
+
+
+/* =====================================================
    일반문서 / 중요문서
 ===================================================== */
+
 
 function getDocumentRecords(type){
 
@@ -686,6 +810,7 @@ function renderDocuments(records,type){
       card.appendChild(media);
     }
 
+    addDeleteButton(record, card);
     list.appendChild(card);
   }
 }
@@ -785,6 +910,7 @@ function renderImages(){
     }
 
     card.appendChild(media);
+    addDeleteButton(record, card);
     list.appendChild(card);
   }
 }
@@ -884,6 +1010,7 @@ function renderVideos(){
     }
 
     card.appendChild(media);
+    addDeleteButton(record, card);
     list.appendChild(card);
   }
 }
