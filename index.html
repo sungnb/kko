@@ -518,18 +518,33 @@ body.light-theme{
   background:#f4f4f4 !important;
   color:#222 !important;
 }
+body.dark-theme{
+  background:#000 !important;
+  color:#fff !important;
+}
+/* 위쪽 제목과 아래 탭은 밝게/어둡게를 눌러도 동일한 색상 유지 */
+body.light-theme header,
+body.dark-theme header{
+  background:#242424 !important;
+  color:#fff !important;
+}
+body.light-theme .bottom,
+body.dark-theme .bottom{
+  background:#242424 !important;
+  border-top-color:#3b3b3b !important;
+}
+body.light-theme .bottom button,
+body.dark-theme .bottom button{
+  color:#eee !important;
+}
+body.light-theme .bottom button.active,
+body.dark-theme .bottom button.active{
+  background:transparent !important;
+  color:#c5a8ee !important;
+}
 body.light-theme .card{
   background:#fff !important;
   color:#222 !important;
-}
-body.light-theme .bottom{
-  background:#fff !important;
-}
-body.light-theme .bottom button{
-  color:#333 !important;
-}
-body.light-theme .bottom button.active{
-  color:#145A32 !important;
 }
 
 </style>
@@ -2422,10 +2437,10 @@ load(initialType);
 
 <div id="settingsPanel" aria-hidden="true">
   <div class="settings-box">
-    <h3>화면 설정</h3>
+    <h3>배경 설정</h3>
     <div class="theme-buttons">
-      <button id="themeLight" type="button">☀️ 밝게</button>
-      <button id="themeDark" type="button">🌙 어둡게</button>
+      <button id="themeLight" type="button">☀️ 배경 밝게</button>
+      <button id="themeDark" type="button">🌙 배경 어둡게</button>
     </div>
     <button id="settingsClose" class="settings-close" type="button">닫기</button>
   </div>
