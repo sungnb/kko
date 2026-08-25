@@ -22,7 +22,7 @@ body{
 }
 
 header{
-  background:#3f7f4a;
+  background:#242424;
   color:#fff;
   padding:18px 16px;
   text-align:center;
@@ -31,6 +31,7 @@ header{
   position:sticky;
   top:0;
   z-index:5;
+  border-bottom:1px solid #3b3b3b;
 }
 
 main{
@@ -279,30 +280,60 @@ main{
   left:0;
   right:0;
   bottom:0;
-  background:#fff;
-  border-top:1px solid #ddd;
-  padding:8px;
+  background:#242424;
+  border-top:1px solid #3b3b3b;
+  padding:7px 5px 6px;
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:6px;
+  gap:3px;
   z-index:10;
 }
 
 .bottom button{
   border:0;
-  border-radius:10px;
-  background:#e9eee9;
-  color:#285c31;
-  font-size:14px;
+  border-radius:8px;
+  background:transparent;
+  color:#eee;
+  font-size:13px;
   font-weight:700;
-  padding:13px 4px;
-  min-height:48px;
+  padding:7px 3px 6px;
+  min-height:62px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+}
+
+.bottom button .bottom-icon{
+  font-size:25px;
+  line-height:1;
 }
 
 .bottom button.active{
-  background:#3f7f4a;
-  color:#fff;
+  background:transparent;
+  color:#c5a8ee;
 }
+@media(max-width:480px){
+  header{
+    padding:17px 14px;
+    font-size:22px;
+  }
+
+  .bottom{
+    padding:6px 4px 5px;
+  }
+
+  .bottom button{
+    min-height:62px;
+    font-size:12px;
+  }
+
+  .bottom button .bottom-icon{
+    font-size:24px;
+  }
+}
+
 
 .empty{
   text-align:center;
@@ -340,19 +371,23 @@ main{
 <nav class="bottom">
 
   <button data-type="일반문서">
-    일반문서
+    <span class="bottom-icon">📄</span>
+    <span>일반문서</span>
   </button>
 
   <button data-type="중요문서">
-    중요문서
+    <span class="bottom-icon">⭐</span>
+    <span>중요문서</span>
   </button>
 
   <button data-type="이미지">
-    이미지
+    <span class="bottom-icon">🖼️</span>
+    <span>이미지</span>
   </button>
 
   <button data-type="동영상">
-    동영상
+    <span class="bottom-icon">🎬</span>
+    <span>동영상</span>
   </button>
 
 </nav>
