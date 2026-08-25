@@ -31,7 +31,6 @@ header{
   position:sticky;
   top:0;
   z-index:5;
-  border-bottom:1px solid #3b3b3b;
 }
 
 main{
@@ -167,7 +166,7 @@ main{
   border-radius:9px;
 
   background:#f2f8f3;
-  color:#285c31;
+  color:#c5a8ee;
 
   text-decoration:none;
 
@@ -218,7 +217,7 @@ main{
 .copy-button{
   border:1px solid #9fbea4;
   background:#edf6ef;
-  color:#285c31;
+  color:#c5a8ee;
   box-shadow:0 1px 3px rgba(0,0,0,.08);
 }
 
@@ -284,7 +283,7 @@ main{
   border-top:1px solid #3b3b3b;
   padding:7px 5px 6px;
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(5,1fr);
   gap:3px;
   z-index:10;
 }
@@ -296,7 +295,7 @@ main{
   color:#eee;
   font-size:13px;
   font-weight:700;
-  padding:7px 3px 6px;
+  padding:7px 2px 6px;
   min-height:62px;
   display:flex;
   flex-direction:column;
@@ -314,26 +313,23 @@ main{
   background:transparent;
   color:#c5a8ee;
 }
-@media(max-width:480px){
-  header{
-    padding:17px 14px;
-    font-size:22px;
-  }
 
+@media(max-width:480px){
   .bottom{
-    padding:6px 4px 5px;
+    padding:6px 3px 5px;
   }
 
   .bottom button{
     min-height:62px;
-    font-size:12px;
+    font-size:11px;
+    padding-left:1px;
+    padding-right:1px;
   }
 
   .bottom button .bottom-icon{
-    font-size:24px;
+    font-size:23px;
   }
 }
-
 
 .empty{
   text-align:center;
@@ -388,6 +384,11 @@ main{
   <button data-type="동영상">
     <span class="bottom-icon">🎬</span>
     <span>동영상</span>
+  </button>
+
+  <button data-type="개인연구">
+    <span class="bottom-icon">📚</span>
+    <span>개인연구</span>
   </button>
 
 </nav>
@@ -1828,6 +1829,14 @@ function render(type){
 /* =====================================================
    Airtable 자료 불러오기
 ===================================================== */
+
+function applyPersonalResearchActions(type) {
+  if (type !== "개인연구") return;
+  document.querySelectorAll("button").forEach(btn => {
+    const text = (btn.textContent || "").trim();
+    if (text.includes("복사")) btn.textContent = text.replace("복사", "기록");
+  });
+}
 
 async function load(type){
 
