@@ -1259,7 +1259,7 @@ function renderDocuments(
   list.innerHTML = "";
 
 
-  if(!records.length){
+  if(!personalRecords.length){
 
     list.innerHTML =
       `<div class="empty">
@@ -2014,215 +2014,13 @@ function createPersonalResearchForm(editRecord = null){
   return form;
 }
 
-function renderPersonalResearch(records){
-
-  list.innerHTML = "";
-
-  const addButton =
-    document.createElement("button");
-
-  addButton.type = "button";
-  addButton.className = "research-edit-button";
-  addButton.style.width = "100%";
-  addButton.style.marginBottom = "10px";
-  addButton.textContent = "➕ 새 개인연구 기록";
-
-  addButton.addEventListener("click", () => {
-
-    const oldForm =
-      document.querySelector(".research-form");
-
-    if(oldForm){
-      oldForm.remove();
-    }
-
-    const form =
-      createPersonalResearchForm();
-
-    addButton.insertAdjacentElement(
-      "afterend",
-      form
-    );
-
-    form.scrollIntoView({
-      behavior:"smooth",
-      block:"center"
-    });
-
-  });
-
-  list.appendChild(addButton);
-
-  if(!records.length){
-
-    const empty =
-      document.createElement("div");
-
-    empty.className = "empty";
-    empty.textContent =
-      "아직 개인연구 기록이 없습니다.";
-
-    list.appendChild(empty);
-    return;
-  }
-
-  for(const record of records){
-
-    const card =
-      document.createElement("section");
-
-    card.className = "card";
-
-    const title =
-      document.createElement("div");
-
-    title.className = "card-title";
-    title.textContent = getTitle(record);
-    card.appendChild(title);
-
-    const date =
-      getDate(record);
-
-    if(date){
-
-      const d =
-        document.createElement("div");
-
-      d.className = "date";
-      d.textContent = date;
-      card.appendChild(d);
-    }
-
-    const notes =
-      getNotes(record);
-
-    if(notes){
-
-      const n =
-        document.createElement("div");
-
-      n.className = "notes";
-      n.textContent = notes;
-      card.appendChild(n);
-    }
-
-    const actions =
-      document.createElement("div");
-
-    actions.className =
-      "research-action-row";
-
-    const editButton =
-      document.createElement("button");
-
-    editButton.type = "button";
-    editButton.className =
-      "research-edit-button";
-    editButton.textContent = "✏️ 수정";
-
-    editButton.addEventListener("click", () => {
-
-      const oldForm =
-        document.querySelector(".research-form");
-
-      if(oldForm){
-        oldForm.remove();
-      }
-
-      const form =
-        createPersonalResearchForm(record);
-
-      card.insertAdjacentElement(
-        "beforebegin",
-        form
-      );
-
-      form.scrollIntoView({
-        behavior:"smooth",
-        block:"center"
-      });
-
-    });
-
-    const deleteButton =
-      document.createElement("button");
-
-    deleteButton.type = "button";
-    deleteButton.className =
-      "delete-button";
-    deleteButton.textContent =
-      "🗑️ 삭제";
-
-    deleteButton.addEventListener("click", async () => {
-
-      if(!confirm(
-        "이 개인연구를 삭제하시겠습니까?\n\n" +
-        "삭제하면 Airtable에서도 삭제됩니다."
-      )){
-        return;
-      }
-
-      deleteButton.disabled = true;
-      deleteButton.textContent = "삭제 중...";
-
-      try{
-
-        const response =
-          await fetch(API_URL,{
-            method:"DELETE",
-            headers:{
-              "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-              table:"개인연구",
-              recordId:record.id
-            })
-          });
-
-        const result =
-          await response.json();
-
-        if(!response.ok || !result.success){
-          throw new Error(
-            result.error?.message ||
-            result.error ||
-            result.message ||
-            "삭제하지 못했습니다."
-          );
-        }
-
-        await load("개인연구");
-
-      }catch(error){
-
-        console.error(error);
-
-        alert(
-          "개인연구를 삭제하지 못했습니다.\n\n" +
-          error.message
-        );
-
-        deleteButton.disabled = false;
-        deleteButton.textContent =
-          "🗑️ 삭제";
-      }
-    });
-
-    actions.appendChild(editButton);
-    actions.appendChild(deleteButton);
-
-    card.appendChild(actions);
-    list.appendChild(card);
-  }
-}
-
 
 function render(type){
 
   setPageTitle(type);
 
   if(type === "개인연구"){
-    renderPersonalResearch();
+    renderPersonalResearch(sortNewestFirst(allRecords));
     return;
   }
 
@@ -2245,19 +2043,6 @@ function render(type){
 
     return;
   }
-
-
-  if(
-    type === "개인연구"
-  ){
-
-    renderPersonalResearch(
-      sortNewestFirst(allRecords)
-    );
-
-    return;
-  }
-
 
   renderDocuments(
     getDocumentRecords(type),
@@ -2298,7 +2083,7 @@ function showPersonalResearchForm(record=null){
     if(!name&&!notes){alert("제목이나 연구 내용을 입력해 주세요.");return;}
     const save=overlay.querySelector("#prSave"); save.disabled=true; save.textContent=editing?"수정 중...":"기록 중...";
     try{
-      const r=await fetch(PERSONAL_RESEARCH_API,{method:editing?"PATCH":"POST",headers:{"Content-Type":"application/json"},
+      const r=await fetch(API_URL,{method:editing?"PATCH":"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({table:"개인연구",recordId:editing?record.id:undefined,fields:{Name:name,Notes:notes}})});
       const d=await r.json(); if(!r.ok||!d.success) throw new Error(d.error?.message||d.error||"저장에 실패했습니다.");
       overlay.remove(); await load("개인연구");
@@ -2309,23 +2094,28 @@ function showPersonalResearchForm(record=null){
 async function deletePersonalResearch(record){
   if(!confirm("이 개인연구 기록을 삭제하시겠습니까?"))return;
   try{
-    const r=await fetch(PERSONAL_RESEARCH_API,{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({table:"개인연구",recordId:record.id})});
+    const r=await fetch(API_URL,{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({table:"개인연구",recordId:record.id})});
     const d=await r.json(); if(!r.ok||!d.success)throw new Error(d.error?.message||d.error||"삭제에 실패했습니다.");
     await load("개인연구");
   }catch(e){alert("개인연구 삭제에 실패했습니다.\n\n"+e.message);}
 }
 
-function renderPersonalResearch(){
+function renderPersonalResearch(records){
   list.innerHTML="";
   const add=document.createElement("button");
-  add.type="button"; add.textContent="＋ 새 개인연구 기록";
+  add.type="button"; add.textContent="＋";
   add.style.cssText="width:100%;height:52px;margin:0 0 14px;border:0;border-radius:10px;background:#8d72b8;color:#fff;font-size:16px;font-weight:800;";
   add.onclick=()=>showPersonalResearchForm(); list.appendChild(add);
 
-  const records=sortNewestFirst(allRecords.filter(r=>{const f=r.fields||{};return f.Name!==undefined||f.Notes!==undefined;}));
-  if(!records.length){list.insertAdjacentHTML("beforeend",'<div class="empty">개인연구 기록이 없습니다.</div>');return;}
+  const personalRecords = sortNewestFirst(
+    (records || []).filter(r => {
+      const f = r.fields || {};
+      return f.Name !== undefined || f.Notes !== undefined;
+    })
+  );
+  if(!personalRecords.length){list.insertAdjacentHTML("beforeend",'<div class="empty">개인연구 기록이 없습니다.</div>');return;}
 
-  records.forEach(record=>{
+  personalRecords.forEach(record=>{
     const f=record.fields||{}, card=document.createElement("section");
     card.className=getCardClass("개인연구");
     const title=document.createElement("div"); title.className="card-title"; title.textContent=f.Name||"개인연구"; card.appendChild(title);
@@ -2369,7 +2159,12 @@ async function load(type){
 
     const requestUrl =
       type === "개인연구"
-        ? PERSONAL_RESEARCH_API + "&maxRecords=100&t=" + Date.now()
+        ? API_URL +
+          "?maxRecords=100" +
+          "&table=" +
+          encodeURIComponent("개인연구") +
+          "&t=" +
+          Date.now()
         : API_URL +
           "?maxRecords=100" +
           "&view=" +
