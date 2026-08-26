@@ -97,7 +97,8 @@ body.dark-theme,body.dark-theme main,body.dark-theme #list{background:#111!impor
 
 <script>
 const API_URL="https://kakao.s01021319376.workers.dev/";
-const AIRTABLE_VIEW="viwreVjNBkgyyOG7C";
+const KAKAO_TABLE="카카오톡 기록";
+const PERSONAL_TABLE="개인연구";
 const list=document.getElementById("list");
 const pageTitle=document.getElementById("pageTitle");
 let allRecords=[];
@@ -750,14 +751,15 @@ async function load(type){
     `<div class="status">${type} 자료를 불러오는 중입니다...</div>`;
 
   try{
-    const u=
+    const table =
       type==="개인연구"
-      ? API_URL+"?maxRecords=100&table="+
-        encodeURIComponent("개인연구")+
-        "&t="+Date.now()
-      : API_URL+"?maxRecords=100&view="+
-        encodeURIComponent(AIRTABLE_VIEW)+
-        "&t="+Date.now();
+      ? PERSONAL_TABLE
+      : KAKAO_TABLE;
+
+    const u =
+      API_URL+"?maxRecords=100&table="+
+      encodeURIComponent(table)+
+      "&t="+Date.now();
 
     const q=await fetch(u,{cache:"no-store"});
 
