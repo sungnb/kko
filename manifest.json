@@ -1,6 +1,6 @@
 {
-  "name": "봉사준비",
-  "short_name": "봉사준비",
+  "name": "카톡저장",
+  "short_name": "카톡저장",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
