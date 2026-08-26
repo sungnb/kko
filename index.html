@@ -14,11 +14,12 @@
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="카톡저장">
+<meta name="apple-mobile-web-app-title" content="봉사준비">
 
-<title>카톡저장</title>
+<title>봉사준비</title>
 
 <style>
+
 *{
   box-sizing:border-box
 }
@@ -138,7 +139,7 @@ main{
 
 .action-buttons{
   display:flex;
-  gap:7px;
+  gap:8px;
   margin-top:16px
 }
 
@@ -154,9 +155,9 @@ main{
 }
 
 .edit-button{
-  border:1px solid #a99bc1;
-  background:#f3eff8;
-  color:#634a83
+  border:1px solid #b8a5d0;
+  background:#f5f0fa;
+  color:#654a82
 }
 
 .copy-button{
@@ -175,12 +176,6 @@ main{
 .copy-button:disabled,
 .delete-button:disabled{
   opacity:.6
-}
-
-.media-title{
-  font-size:14px;
-  color:#777;
-  margin-bottom:8px
 }
 
 .bottom{
@@ -246,7 +241,7 @@ main{
   margin:0 0 14px;
   border:0;
   border-radius:10px;
-  font-size:16px;
+  font-size:24px;
   font-weight:800
 }
 
@@ -342,49 +337,6 @@ body.dark-theme #list{
   background:#111!important
 }
 
-.research-form{
-  background:#2b2b2b;
-  border:1px solid #444;
-  border-radius:14px;
-  padding:15px;
-  margin:10px 0 16px
-}
-
-.research-form input,
-.research-form textarea{
-  width:100%;
-  border:1px solid #555;
-  border-radius:9px;
-  background:#171717;
-  color:#fff;
-  padding:11px 12px;
-  font-size:16px;
-  outline:none;
-  margin-bottom:9px
-}
-
-.research-form textarea{
-  min-height:130px;
-  resize:vertical;
-  line-height:1.55
-}
-
-.research-form-actions{
-  display:flex;
-  gap:9px
-}
-
-.research-form-actions button{
-  flex:1;
-  height:44px;
-  border-radius:9px;
-  border:1px solid #75658d;
-  background:#342b40;
-  color:#dfd0f2;
-  font-size:14px;
-  font-weight:700
-}
-
 @media(max-width:480px){
 
   .bottom{
@@ -401,22 +353,23 @@ body.dark-theme #list{
   }
 
   .action-buttons{
-    gap:5px
+    gap:6px
   }
 
   .edit-button,
   .copy-button,
   .delete-button{
-    font-size:13px;
-    padding:0 3px
+    font-size:13px
   }
+
 }
+
 </style>
 </head>
 
 <body>
 
-<header id="pageTitle">카톡저장</header>
+<header id="pageTitle">카톡 기록</header>
 
 <main id="list">
   <div class="status">자료를 불러오는 중입니다...</div>
@@ -424,32 +377,33 @@ body.dark-theme #list{
 
 <nav class="bottom">
 
-  <button data-type="일반문서">
-    <span class="bottom-icon">📄</span>
-    <span>일반문서</span>
-  </button>
+<button data-type="일반문서">
+  <span class="bottom-icon">📄</span>
+  <span>일반문서</span>
+</button>
 
-  <button data-type="중요문서">
-    <span class="bottom-icon">⭐</span>
-    <span>중요문서</span>
-  </button>
+<button data-type="중요문서">
+  <span class="bottom-icon">⭐</span>
+  <span>중요문서</span>
+</button>
 
-  <button data-type="이미지">
-    <span class="bottom-icon">🖼️</span>
-    <span>이미지</span>
-  </button>
+<button data-type="이미지">
+  <span class="bottom-icon">🖼️</span>
+  <span>이미지</span>
+</button>
 
-  <button data-type="동영상">
-    <span class="bottom-icon">🎬</span>
-    <span>동영상</span>
-  </button>
+<button data-type="동영상">
+  <span class="bottom-icon">🎬</span>
+  <span>동영상</span>
+</button>
 
-  <button data-type="개인연구">
-    <span class="bottom-icon">📚</span>
-    <span>개인연구</span>
-  </button>
+<button data-type="개인연구">
+  <span class="bottom-icon">📚</span>
+  <span>개인연구</span>
+</button>
 
 </nav>
+
 
 <div id="settingsPanel" aria-hidden="true">
 
@@ -469,10 +423,9 @@ body.dark-theme #list{
 
     </div>
 
-    <button
-      id="settingsClose"
-      class="settings-close"
-      type="button">
+    <button id="settingsClose"
+            class="settings-close"
+            type="button">
       닫기
     </button>
 
@@ -498,6 +451,10 @@ const pageTitle =
 let allRecords = [];
 
 
+// =====================================================
+// URL 타입
+// =====================================================
+
 function getTypeFromURL(){
 
   const t =
@@ -517,17 +474,19 @@ function getTypeFromURL(){
 }
 
 
+// =====================================================
+// 제목
+// =====================================================
+
 function setPageTitle(type){
 
   const t = {
-
-    "일반문서":"📄 일반문서",
-    "중요문서":"⭐ 중요문서",
-    "이미지":"🖼️ 이미지",
-    "동영상":"🎬 동영상",
-    "개인연구":"📚 개인연구"
-
-  }[type] || "카톡저장";
+    일반문서:"📄 일반문서",
+    중요문서:"⭐ 중요문서",
+    이미지:"🖼️ 이미지",
+    동영상:"🎬 동영상",
+    개인연구:"📚 개인연구"
+  }[type] || "카톡 기록";
 
   pageTitle.innerHTML =
     `<span>${t}</span>`;
@@ -541,12 +500,15 @@ function setPageTitle(type){
     "aria-label",
     "설정"
   );
-
   g.textContent = "⚙️";
 
   pageTitle.appendChild(g);
 }
 
+
+// =====================================================
+// Airtable 필드
+// =====================================================
 
 function field(f,n){
 
@@ -566,6 +528,10 @@ function field(f,n){
 }
 
 
+// =====================================================
+// 문서 구분
+// =====================================================
+
 function getDocumentType(r){
 
   return String(
@@ -582,8 +548,13 @@ function getDocumentType(r){
       ]
     )
   ).trim();
+
 }
 
+
+// =====================================================
+// 날짜
+// =====================================================
 
 function getDate(r){
 
@@ -595,21 +566,34 @@ function getDate(r){
       "작성일"
     ]
   );
+
 }
 
+
+// =====================================================
+// 제목
+// =====================================================
 
 function getTitle(r){
 
-  return field(
-    r.fields || {},
-    [
-      "Title",
-      "제목",
-      "Name"
-    ]
-  ) || "카톡 기록";
+  return (
+    field(
+      r.fields || {},
+      [
+        "Title",
+        "제목",
+        "Name"
+      ]
+    ) ||
+    "카톡 기록"
+  );
+
 }
 
+
+// =====================================================
+// 내용
+// =====================================================
 
 function getNotes(r){
 
@@ -622,8 +606,13 @@ function getNotes(r){
       "text"
     ]
   );
+
 }
 
+
+// =====================================================
+// 첨부파일
+// =====================================================
 
 function attachmentList(f){
 
@@ -634,7 +623,8 @@ function attachmentList(f){
     of Object.entries(f || {})
   ){
 
-    if(!Array.isArray(v)) continue;
+    if(!Array.isArray(v))
+      continue;
 
     for(const i of v){
 
@@ -664,6 +654,10 @@ function attachmentList(f){
 }
 
 
+// =====================================================
+// 이미지
+// =====================================================
+
 function isImageFile(f){
 
   return (
@@ -671,8 +665,13 @@ function isImageFile(f){
     /\.(jpg|jpeg|png|gif|webp|heic|heif)$/i
       .test(f.name)
   );
+
 }
 
+
+// =====================================================
+// 동영상
+// =====================================================
 
 function isVideoFile(f){
 
@@ -681,8 +680,13 @@ function isVideoFile(f){
     /\.(mp4|mov|m4v|webm|avi|mkv)$/i
       .test(f.name)
   );
+
 }
 
+
+// =====================================================
+// 정렬
+// =====================================================
 
 function getRecordSortTime(r){
 
@@ -691,9 +695,8 @@ function getRecordSortTime(r){
     const x =
       Date.parse(r.createdTime);
 
-    if(!Number.isNaN(x)){
+    if(!Number.isNaN(x))
       return x;
-    }
 
   }
 
@@ -711,51 +714,56 @@ function getRecordSortTime(r){
 function sortNewestFirst(r){
 
   return [...r].sort(
-    (a,b)=>
+    (a,b) =>
       getRecordSortTime(b) -
       getRecordSortTime(a)
   );
+
 }
 
+
+// =====================================================
+// 카드 색상
+// =====================================================
 
 function getCardClass(t){
 
-  if(t==="중요문서")
-    return "card document-important";
+  return (
+    t === "중요문서"
+      ? "card document-important"
+      : t === "이미지"
+      ? "card document-image"
+      : t === "동영상"
+      ? "card document-video"
+      : t === "일반문서"
+      ? "card document-normal"
+      : "card"
+  );
 
-  if(t==="이미지")
-    return "card document-image";
-
-  if(t==="동영상")
-    return "card document-video";
-
-  if(t==="일반문서")
-    return "card document-normal";
-
-  return "card";
 }
 
 
-/* =========================
-   복사
-========================= */
+// =====================================================
+// 복사
+// =====================================================
 
 async function copyNotes(r){
 
-  const n =
-    getNotes(r);
+  const n = getNotes(r);
 
   if(!n){
-    return alert(
+
+    alert(
       "복사할 내용이 없습니다."
     );
+
+    return;
   }
 
   try{
 
-    await navigator.clipboard.writeText(
-      String(n)
-    );
+    await navigator.clipboard
+      .writeText(String(n));
 
   }catch(e){
 
@@ -777,14 +785,31 @@ async function copyNotes(r){
   }
 
   alert("📋 복사되었습니다.");
+
 }
 
 
-/* =========================
-   카카오톡 기록 수정
-========================= */
+// =====================================================
+// HTML escape
+// =====================================================
 
-function showDocumentEditForm(r,type){
+function escapeHtml(v){
+
+  return String(v ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+// =====================================================
+// 카카오톡 기록 수정
+// =====================================================
+
+function showKakaoEditForm(r){
 
   const f =
     r.fields || {};
@@ -793,7 +818,13 @@ function showDocumentEditForm(r,type){
     document.createElement("div");
 
   o.style.cssText =
-    "position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:flex;align-items:flex-end;justify-content:center";
+    "position:fixed;" +
+    "inset:0;" +
+    "background:rgba(0,0,0,.72);" +
+    "z-index:100;" +
+    "display:flex;" +
+    "align-items:flex-end;" +
+    "justify-content:center;";
 
   o.innerHTML = `
 
@@ -802,19 +833,19 @@ function showDocumentEditForm(r,type){
       background:#242424;
       color:#fff;
       border-radius:18px 18px 0 0;
-      padding:20px
+      padding:20px;
     ">
 
       <div style="
         font-size:21px;
         font-weight:800;
-        margin-bottom:15px
+        margin-bottom:15px;
       ">
-        ${escapeHtml(type)} 수정
+        카톡 기록 수정
       </div>
 
       <input
-        id="docName"
+        id="kakaoEditName"
         value="${escapeHtml(f.Name || "")}"
         placeholder="제목"
         style="
@@ -826,12 +857,12 @@ function showDocumentEditForm(r,type){
           color:#fff;
           padding:0 13px;
           font-size:16px;
-          margin-bottom:10px
+          margin-bottom:10px;
         "
       >
 
       <textarea
-        id="docNotes"
+        id="kakaoEditNotes"
         placeholder="내용"
         style="
           width:100%;
@@ -843,18 +874,18 @@ function showDocumentEditForm(r,type){
           padding:13px;
           font-size:16px;
           line-height:1.6;
-          resize:vertical
+          resize:vertical;
         "
       >${escapeHtml(f.Notes || "")}</textarea>
 
       <div style="
         display:flex;
         gap:9px;
-        margin-top:12px
+        margin-top:12px;
       ">
 
         <button
-          id="docCancel"
+          id="kakaoEditCancel"
           type="button"
           style="
             flex:1;
@@ -863,14 +894,14 @@ function showDocumentEditForm(r,type){
             border-radius:9px;
             background:#292929;
             color:#eee;
-            font-weight:700
+            font-weight:700;
           "
         >
           취소
         </button>
 
         <button
-          id="docSave"
+          id="kakaoEditSave"
           type="button"
           style="
             flex:1;
@@ -879,7 +910,7 @@ function showDocumentEditForm(r,type){
             border-radius:9px;
             background:#8d72b8;
             color:#fff;
-            font-weight:800
+            font-weight:800;
           "
         >
           수정 저장
@@ -888,42 +919,43 @@ function showDocumentEditForm(r,type){
       </div>
 
     </div>
+
   `;
 
   document.body.appendChild(o);
 
 
   o.querySelector(
-    "#docCancel"
-  ).onclick = () =>
-    o.remove();
+    "#kakaoEditCancel"
+  ).onclick = () => o.remove();
 
 
   o.querySelector(
-    "#docSave"
-  ).onclick = async()=>{
+    "#kakaoEditSave"
+  ).onclick = async () => {
 
     const name =
       o.querySelector(
-        "#docName"
+        "#kakaoEditName"
       ).value.trim();
 
     const notes =
       o.querySelector(
-        "#docNotes"
+        "#kakaoEditNotes"
       ).value.trim();
 
     if(!name && !notes){
 
-      return alert(
+      alert(
         "제목이나 내용을 입력해 주세요."
       );
 
+      return;
     }
 
     const b =
       o.querySelector(
-        "#docSave"
+        "#kakaoEditSave"
       );
 
     b.disabled = true;
@@ -943,13 +975,9 @@ function showDocumentEditForm(r,type){
             },
             body:JSON.stringify({
 
-              table:
-                type === "개인연구"
-                  ? "개인연구"
-                  : "카카오톡 기록",
+              table:"카카오톡 기록",
 
-              recordId:
-                r.id,
+              recordId:r.id,
 
               fields:{
                 Name:name,
@@ -960,10 +988,8 @@ function showDocumentEditForm(r,type){
           }
         );
 
-
       const d =
         await q.json();
-
 
       if(
         !q.ok ||
@@ -978,22 +1004,22 @@ function showDocumentEditForm(r,type){
 
       }
 
-
       o.remove();
 
-      await load(type);
-
+      await load(
+        getTypeFromURL()
+      );
 
     }catch(e){
 
       alert(
-        "수정하지 못했습니다.\n\n" +
+        "카톡 기록 수정에 실패했습니다.\n\n" +
         e.message
       );
 
       b.disabled = false;
-      b.textContent = "수정 저장";
-
+      b.textContent =
+        "수정 저장";
     }
 
   };
@@ -1001,24 +1027,270 @@ function showDocumentEditForm(r,type){
 }
 
 
-/* =========================
-   삭제
-========================= */
+// =====================================================
+// 개인연구 수정/추가
+// =====================================================
 
-async function deleteRecord(
-  r,
-  c,
-  type
-){
+function showPersonalResearchForm(r=null){
+
+  const edit = !!r;
+
+  const f =
+    edit
+      ? (r.fields || {})
+      : {};
+
+  const o =
+    document.createElement("div");
+
+  o.style.cssText =
+    "position:fixed;" +
+    "inset:0;" +
+    "background:rgba(0,0,0,.72);" +
+    "z-index:100;" +
+    "display:flex;" +
+    "align-items:flex-end;" +
+    "justify-content:center";
+
+  o.innerHTML = `
+
+    <div style="
+      width:min(100%,720px);
+      background:#242424;
+      color:#fff;
+      border-radius:18px 18px 0 0;
+      padding:20px;
+    ">
+
+      <div style="
+        font-size:21px;
+        font-weight:800;
+        margin-bottom:15px;
+      ">
+        ${edit
+          ? "개인연구 수정"
+          : "새 개인연구 기록"}
+      </div>
+
+      <input
+        id="prName"
+        value="${escapeHtml(
+          f.Name || ""
+        )}"
+        placeholder="제목"
+        style="
+          width:100%;
+          height:48px;
+          border:1px solid #555;
+          border-radius:9px;
+          background:#111;
+          color:#fff;
+          padding:0 13px;
+          font-size:16px;
+          margin-bottom:10px;
+        "
+      >
+
+      <textarea
+        id="prNotes"
+        placeholder="연구 내용을 입력하세요"
+        style="
+          width:100%;
+          min-height:190px;
+          border:1px solid #555;
+          border-radius:9px;
+          background:#111;
+          color:#fff;
+          padding:13px;
+          font-size:16px;
+          line-height:1.6;
+          resize:vertical;
+        "
+      >${escapeHtml(
+        f.Notes || ""
+      )}</textarea>
+
+      <div style="
+        display:flex;
+        gap:9px;
+        margin-top:12px;
+      ">
+
+        <button
+          id="prCancel"
+          type="button"
+          style="
+            flex:1;
+            height:46px;
+            border:1px solid #555;
+            border-radius:9px;
+            background:#292929;
+            color:#eee;
+            font-weight:700;
+          "
+        >
+          취소
+        </button>
+
+        <button
+          id="prSave"
+          type="button"
+          style="
+            flex:1;
+            height:46px;
+            border:0;
+            border-radius:9px;
+            background:#8d72b8;
+            color:#fff;
+            font-weight:800;
+          "
+        >
+          ${edit
+            ? "수정 저장"
+            : "기록 저장"}
+        </button>
+
+      </div>
+
+    </div>
+
+  `;
+
+  document.body.appendChild(o);
+
+
+  o.querySelector(
+    "#prCancel"
+  ).onclick = () => o.remove();
+
+
+  o.querySelector(
+    "#prSave"
+  ).onclick = async () => {
+
+    const name =
+      o.querySelector(
+        "#prName"
+      ).value.trim();
+
+    const notes =
+      o.querySelector(
+        "#prNotes"
+      ).value.trim();
+
+    if(!name && !notes){
+
+      alert(
+        "제목이나 연구 내용을 입력해 주세요."
+      );
+
+      return;
+    }
+
+    const b =
+      o.querySelector(
+        "#prSave"
+      );
+
+    b.disabled = true;
+
+    b.textContent =
+      edit
+        ? "수정 중..."
+        : "기록 중...";
+
+
+    try{
+
+      const q =
+        await fetch(
+          API_URL,
+          {
+            method:
+              edit
+                ? "PATCH"
+                : "POST",
+
+            headers:{
+              "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify({
+
+              table:"개인연구",
+
+              ...(edit
+                ? {
+                    recordId:r.id
+                  }
+                : {}),
+
+              fields:{
+                Name:name,
+                Notes:notes
+              }
+
+            })
+          }
+        );
+
+      const d =
+        await q.json();
+
+      if(
+        !q.ok ||
+        !d.success
+      ){
+
+        throw Error(
+          d.error?.message ||
+          d.error ||
+          "저장에 실패했습니다."
+        );
+
+      }
+
+      o.remove();
+
+      await load(
+        "개인연구"
+      );
+
+    }catch(e){
+
+      alert(
+        "개인연구 저장에 실패했습니다.\n\n" +
+        e.message
+      );
+
+      b.disabled = false;
+
+      b.textContent =
+        edit
+          ? "수정 저장"
+          : "기록 저장";
+    }
+
+  };
+
+}
+
+
+// =====================================================
+// 카카오톡 기록 삭제
+// =====================================================
+
+async function deleteKakaoRecord(r,c){
 
   if(!r.id){
 
-    return alert(
+    alert(
       "삭제할 자료의 ID를 찾지 못했습니다."
     );
 
+    return;
   }
-
 
   if(
     !confirm(
@@ -1026,17 +1298,13 @@ async function deleteRecord(
       "삭제하면 Airtable에서도 삭제됩니다."
     )
   ){
-
     return;
-
   }
-
 
   const b =
     c.querySelector(
       ".delete-button"
     );
-
 
   if(b){
 
@@ -1047,12 +1315,6 @@ async function deleteRecord(
 
 
   try{
-
-    const table =
-      type === "개인연구"
-        ? "개인연구"
-        : "카카오톡 기록";
-
 
     const q =
       await fetch(
@@ -1065,20 +1327,16 @@ async function deleteRecord(
           },
           body:JSON.stringify({
 
-            recordId:
-              r.id,
+            table:"카카오톡 기록",
 
-            table:
-              table
+            recordId:r.id
 
           })
         }
       );
 
-
     const d =
       await q.json();
-
 
     if(
       !q.ok ||
@@ -1093,9 +1351,9 @@ async function deleteRecord(
 
     }
 
-
-    await load(type);
-
+    await load(
+      getTypeFromURL()
+    );
 
   }catch(e){
 
@@ -1103,7 +1361,6 @@ async function deleteRecord(
       "삭제하지 못했습니다.\n\n" +
       e.message
     );
-
 
     if(b){
 
@@ -1117,15 +1374,79 @@ async function deleteRecord(
 }
 
 
-/* =========================
-   버튼
-========================= */
+// =====================================================
+// 개인연구 삭제
+// =====================================================
 
-function addActionButtons(
-  r,
-  c,
-  type
-){
+async function deletePersonalResearch(r){
+
+  if(
+    !confirm(
+      "이 개인연구 기록을 삭제하시겠습니까?"
+    )
+  ){
+    return;
+  }
+
+  try{
+
+    const q =
+      await fetch(
+        API_URL,
+        {
+          method:"DELETE",
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+          body:JSON.stringify({
+
+            table:"개인연구",
+
+            recordId:r.id
+
+          })
+        }
+      );
+
+    const d =
+      await q.json();
+
+    if(
+      !q.ok ||
+      !d.success
+    ){
+
+      throw Error(
+        d.error?.message ||
+        d.error ||
+        "삭제에 실패했습니다."
+      );
+
+    }
+
+    await load(
+      "개인연구"
+    );
+
+  }catch(e){
+
+    alert(
+      "개인연구 삭제에 실패했습니다.\n\n" +
+      e.message
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// 카카오톡 기록 버튼
+// 수정 / 복사 / 삭제
+// =====================================================
+
+function addActionButtons(r,c){
 
   const a =
     document.createElement("div");
@@ -1134,6 +1455,7 @@ function addActionButtons(
     "action-buttons";
 
 
+  // 수정
   const e =
     document.createElement("button");
 
@@ -1144,13 +1466,10 @@ function addActionButtons(
     "✏️ 수정";
 
   e.onclick =
-    () =>
-      showDocumentEditForm(
-        r,
-        type
-      );
+    () => showKakaoEditForm(r);
 
 
+  // 복사
   const x =
     document.createElement("button");
 
@@ -1161,10 +1480,10 @@ function addActionButtons(
     "📋 복사";
 
   x.onclick =
-    () =>
-      copyNotes(r);
+    () => copyNotes(r);
 
 
+  // 삭제
   const d =
     document.createElement("button");
 
@@ -1175,12 +1494,7 @@ function addActionButtons(
     "🗑️ 삭제";
 
   d.onclick =
-    () =>
-      deleteRecord(
-        r,
-        c,
-        type
-      );
+    () => deleteKakaoRecord(r,c);
 
 
   a.append(
@@ -1193,14 +1507,11 @@ function addActionButtons(
 }
 
 
-/* =========================
-   일반 문서
-========================= */
+// =====================================================
+// 일반 / 중요 문서
+// =====================================================
 
-function renderDocuments(
-  rs,
-  type
-){
+function renderDocuments(rs,type){
 
   list.innerHTML = "";
 
@@ -1215,7 +1526,7 @@ function renderDocuments(
   }
 
 
-  rs.forEach(r=>{
+  rs.forEach(r => {
 
     const c =
       document.createElement("section");
@@ -1251,6 +1562,7 @@ function renderDocuments(
         dt;
 
       c.appendChild(d);
+
     }
 
 
@@ -1269,6 +1581,7 @@ function renderDocuments(
         n;
 
       c.appendChild(e);
+
     }
 
 
@@ -1287,7 +1600,7 @@ function renderDocuments(
         "media";
 
 
-      fs.forEach(f=>{
+      fs.forEach(f => {
 
         if(isVideoFile(f)){
 
@@ -1300,7 +1613,8 @@ function renderDocuments(
 
           m.appendChild(v);
 
-        }else if(isImageFile(f)){
+        }
+        else if(isImageFile(f)){
 
           const i =
             document.createElement("img");
@@ -1310,6 +1624,7 @@ function renderDocuments(
           i.loading = "lazy";
 
           m.appendChild(i);
+
         }
 
 
@@ -1319,6 +1634,7 @@ function renderDocuments(
         a.href = f.url;
         a.target = "_blank";
         a.rel = "noopener";
+
         a.textContent =
           "📎 파일 보기";
 
@@ -1334,10 +1650,8 @@ function renderDocuments(
 
     addActionButtons(
       r,
-      c,
-      type
+      c
     );
-
 
     list.appendChild(c);
 
@@ -1346,26 +1660,25 @@ function renderDocuments(
 }
 
 
-/* =========================
-   이미지 / 동영상
-========================= */
+// =====================================================
+// 이미지 / 동영상
+// =====================================================
 
 function renderMedia(type){
 
   const arr = [];
 
-
-  allRecords.forEach(r=>{
+  allRecords.forEach(r => {
 
     const fs =
       attachmentList(
         r.fields || {}
-      ).filter(
+      )
+      .filter(
         type === "이미지"
           ? isImageFile
           : isVideoFile
       );
-
 
     if(fs.length){
 
@@ -1380,7 +1693,7 @@ function renderMedia(type){
 
 
   arr.sort(
-    (a,b)=>
+    (a,b) =>
       getRecordSortTime(b.record) -
       getRecordSortTime(a.record)
   );
@@ -1400,7 +1713,7 @@ function renderMedia(type){
   }
 
 
-  arr.forEach(o=>{
+  arr.forEach(o => {
 
     const r =
       o.record;
@@ -1469,7 +1782,7 @@ function renderMedia(type){
       "media";
 
 
-    o.files.forEach(f=>{
+    o.files.forEach(f => {
 
       if(type === "이미지"){
 
@@ -1482,7 +1795,8 @@ function renderMedia(type){
 
         m.appendChild(i);
 
-      }else{
+      }
+      else{
 
         const v =
           document.createElement("video");
@@ -1502,6 +1816,7 @@ function renderMedia(type){
       a.href = f.url;
       a.target = "_blank";
       a.rel = "noopener";
+
       a.textContent =
         "📎 파일 보기";
 
@@ -1515,8 +1830,7 @@ function renderMedia(type){
 
     addActionButtons(
       r,
-      c,
-      type
+      c
     );
 
 
@@ -1527,366 +1841,9 @@ function renderMedia(type){
 }
 
 
-/* =========================
-   HTML 안전 처리
-========================= */
-
-function escapeHtml(v){
-
-  return String(v ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-
-
-/* =========================
-   개인연구 입력
-========================= */
-
-function showPersonalResearchForm(
-  r=null
-){
-
-  const edit = !!r;
-
-  const f =
-    edit
-      ? (r.fields || {})
-      : {};
-
-
-  const o =
-    document.createElement("div");
-
-
-  o.style.cssText =
-    "position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:flex;align-items:flex-end;justify-content:center";
-
-
-  o.innerHTML = `
-
-    <div style="
-      width:min(100%,720px);
-      background:#242424;
-      color:#fff;
-      border-radius:18px 18px 0 0;
-      padding:20px
-    ">
-
-      <div style="
-        font-size:21px;
-        font-weight:800;
-        margin-bottom:15px
-      ">
-        ${edit
-          ? "개인연구 수정"
-          : "새 개인연구 기록"}
-      </div>
-
-
-      <input
-        id="prName"
-        value="${escapeHtml(
-          f.Name || ""
-        )}"
-        placeholder="제목"
-        style="
-          width:100%;
-          height:48px;
-          border:1px solid #555;
-          border-radius:9px;
-          background:#111;
-          color:#fff;
-          padding:0 13px;
-          font-size:16px;
-          margin-bottom:10px
-        "
-      >
-
-
-      <textarea
-        id="prNotes"
-        placeholder="연구 내용을 입력하세요"
-        style="
-          width:100%;
-          min-height:190px;
-          border:1px solid #555;
-          border-radius:9px;
-          background:#111;
-          color:#fff;
-          padding:13px;
-          font-size:16px;
-          line-height:1.6;
-          resize:vertical
-        "
-      >${escapeHtml(
-        f.Notes || ""
-      )}</textarea>
-
-
-      <div style="
-        display:flex;
-        gap:9px;
-        margin-top:12px
-      ">
-
-        <button
-          id="prCancel"
-          type="button"
-          style="
-            flex:1;
-            height:46px;
-            border:1px solid #555;
-            border-radius:9px;
-            background:#292929;
-            color:#eee;
-            font-weight:700
-          "
-        >
-          취소
-        </button>
-
-
-        <button
-          id="prSave"
-          type="button"
-          style="
-            flex:1;
-            height:46px;
-            border:0;
-            border-radius:9px;
-            background:#8d72b8;
-            color:#fff;
-            font-weight:800
-          "
-        >
-          ${edit
-            ? "수정 저장"
-            : "기록 저장"}
-        </button>
-
-      </div>
-
-    </div>
-  `;
-
-
-  document.body.appendChild(o);
-
-
-  o.querySelector(
-    "#prCancel"
-  ).onclick =
-    () => o.remove();
-
-
-  o.querySelector(
-    "#prSave"
-  ).onclick =
-    async()=>{
-
-      const name =
-        o.querySelector(
-          "#prName"
-        ).value.trim();
-
-
-      const notes =
-        o.querySelector(
-          "#prNotes"
-        ).value.trim();
-
-
-      if(!name && !notes){
-
-        return alert(
-          "제목이나 연구 내용을 입력해 주세요."
-        );
-
-      }
-
-
-      const b =
-        o.querySelector(
-          "#prSave"
-        );
-
-
-      b.disabled = true;
-
-      b.textContent =
-        edit
-          ? "수정 중..."
-          : "기록 중...";
-
-
-      try{
-
-        const q =
-          await fetch(
-            API_URL,
-            {
-              method:
-                edit
-                  ? "PATCH"
-                  : "POST",
-
-              headers:{
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:JSON.stringify({
-
-                table:
-                  "개인연구",
-
-                ...(edit
-                  ? {
-                      recordId:
-                        r.id
-                    }
-                  : {}),
-
-                fields:{
-                  Name:name,
-                  Notes:notes
-                }
-
-              })
-            }
-          );
-
-
-        const d =
-          await q.json();
-
-
-        if(
-          !q.ok ||
-          !d.success
-        ){
-
-          throw Error(
-            d.error?.message ||
-            d.error ||
-            "저장에 실패했습니다."
-          );
-
-        }
-
-
-        o.remove();
-
-        await load(
-          "개인연구"
-        );
-
-
-      }catch(e){
-
-        alert(
-          "개인연구 저장에 실패했습니다.\n\n" +
-          e.message
-        );
-
-        b.disabled = false;
-
-        b.textContent =
-          edit
-            ? "수정 저장"
-            : "기록 저장";
-
-      }
-
-    };
-
-}
-
-
-/* =========================
-   개인연구 삭제
-========================= */
-
-async function deletePersonalResearch(r){
-
-  if(
-    !confirm(
-      "이 개인연구 기록을 삭제하시겠습니까?"
-    )
-  ){
-
-    return;
-  }
-
-
-  try{
-
-    const q =
-      await fetch(
-        API_URL,
-        {
-          method:"DELETE",
-
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
-
-          body:JSON.stringify({
-
-            table:"개인연구",
-
-            recordId:
-              r.id
-
-          })
-
-        }
-      );
-
-
-    const d =
-      await q.json();
-
-
-    if(
-      !q.ok ||
-      !d.success
-    ){
-
-      throw Error(
-        d.error?.message ||
-        d.error ||
-        "삭제에 실패했습니다."
-      );
-
-    }
-
-
-    await load(
-      "개인연구"
-    );
-
-
-  }catch(e){
-
-    alert(
-      "개인연구 삭제에 실패했습니다.\n\n" +
-      e.message
-    );
-
-  }
-
-}
-
-
-/* =========================
-   개인연구 표시
-========================= */
+// =====================================================
+// 개인연구 표시
+// =====================================================
 
 function renderPersonalResearch(rs){
 
@@ -1903,16 +1860,15 @@ function renderPersonalResearch(rs){
     "＋";
 
   a.onclick =
-    () =>
-      showPersonalResearchForm();
-
+    () => showPersonalResearchForm();
 
   list.appendChild(a);
 
 
   const pr =
     sortNewestFirst(
-      (rs || []).filter(r=>{
+      (rs || [])
+      .filter(r => {
 
         const f =
           r.fields || {};
@@ -1930,18 +1886,19 @@ function renderPersonalResearch(rs){
 
     list.insertAdjacentHTML(
       "beforeend",
-      '<div class="empty">개인연구 기록이 없습니다.</div>'
+      '<div class="empty">' +
+      '개인연구 기록이 없습니다.' +
+      '</div>'
     );
 
     return;
   }
 
 
-  pr.forEach(r=>{
+  pr.forEach(r => {
 
     const f =
       r.fields || {};
-
 
     const c =
       document.createElement("section");
@@ -1957,8 +1914,7 @@ function renderPersonalResearch(rs){
       "card-title";
 
     t.textContent =
-      f.Name ||
-      "개인연구";
+      f.Name || "개인연구";
 
     c.appendChild(t);
 
@@ -2015,8 +1971,20 @@ function renderPersonalResearch(rs){
       "✏️ 수정";
 
     e.onclick =
-      () =>
-        showPersonalResearchForm(r);
+      () => showPersonalResearchForm(r);
+
+
+    const x =
+      document.createElement("button");
+
+    x.className =
+      "copy-button";
+
+    x.textContent =
+      "📋 복사";
+
+    x.onclick =
+      () => copyNotes(r);
 
 
     const d =
@@ -2029,12 +1997,12 @@ function renderPersonalResearch(rs){
       "🗑️ 삭제";
 
     d.onclick =
-      () =>
-        deletePersonalResearch(r);
+      () => deletePersonalResearch(r);
 
 
     ac.append(
       e,
+      x,
       d
     );
 
@@ -2047,9 +2015,9 @@ function renderPersonalResearch(rs){
 }
 
 
-/* =========================
-   화면 표시
-========================= */
+// =====================================================
+// 전체 렌더링
+// =====================================================
 
 function render(type){
 
@@ -2088,22 +2056,20 @@ function render(type){
 }
 
 
-/* =========================
-   자료 불러오기
-========================= */
+// =====================================================
+// 데이터 불러오기
+// =====================================================
 
 async function load(type){
 
   document
     .querySelectorAll(".bottom button")
-    .forEach(b=>{
-
+    .forEach(b =>
       b.classList.toggle(
         "active",
         b.dataset.type === type
-      );
-
-    });
+      )
+    );
 
 
   setPageTitle(type);
@@ -2165,6 +2131,8 @@ async function load(type){
     if(!d.success){
 
       throw Error(
+        d.error?.message ||
+        d.error ||
         "Worker 조회 실패"
       );
 
@@ -2186,20 +2154,15 @@ async function load(type){
 
     console.error(e);
 
-
     list.innerHTML =
       `<div class="error">
-
         <strong>
           ❌ 자료를 가져오지 못했습니다.
         </strong>
-
         <br><br>
-
         ${escapeHtml(
           e.message
         )}
-
       </div>`;
 
   }
@@ -2207,19 +2170,18 @@ async function load(type){
 }
 
 
-/* =========================
-   하단 메뉴
-========================= */
+// =====================================================
+// 하단 메뉴
+// =====================================================
 
 document
   .querySelectorAll(".bottom button")
-  .forEach(b=>{
+  .forEach(b => {
 
-    b.onclick = ()=>{
+    b.onclick = () => {
 
       const t =
         b.dataset.type;
-
 
       history.pushState(
         {},
@@ -2228,7 +2190,6 @@ document
         "?type=" +
         encodeURIComponent(t)
       );
-
 
       load(t);
 
@@ -2246,9 +2207,9 @@ addEventListener(
 );
 
 
-/* =========================
-   설정
-========================= */
+// =====================================================
+// 배경 설정
+// =====================================================
 
 (function(){
 
@@ -2285,12 +2246,10 @@ addEventListener(
       m === "dark"
     );
 
-
     localStorage.setItem(
       "kkoTheme",
       m
     );
-
 
     l.classList.toggle(
       "active",
@@ -2314,17 +2273,15 @@ addEventListener(
 
   document.addEventListener(
     "click",
-    e=>{
+    e => {
 
       if(
         e.target &&
         e.target.id ===
-          "settingsButton"
+        "settingsButton"
       ){
 
-        p.classList.add(
-          "open"
-        );
+        p.classList.add("open");
 
         p.setAttribute(
           "aria-hidden",
@@ -2337,11 +2294,9 @@ addEventListener(
   );
 
 
-  c.onclick = ()=>{
+  c.onclick = () => {
 
-    p.classList.remove(
-      "open"
-    );
+    p.classList.remove("open");
 
     p.setAttribute(
       "aria-hidden",
@@ -2351,13 +2306,11 @@ addEventListener(
   };
 
 
-  p.onclick = e=>{
+  p.onclick = e => {
 
     if(e.target === p){
 
-      p.classList.remove(
-        "open"
-      );
+      p.classList.remove("open");
 
       p.setAttribute(
         "aria-hidden",
@@ -2370,20 +2323,17 @@ addEventListener(
 
 
   l.onclick =
-    () =>
-      theme("light");
-
+    () => theme("light");
 
   d.onclick =
-    () =>
-      theme("dark");
+    () => theme("dark");
 
 })();
 
 
-/* =========================
-   시작
-========================= */
+// =====================================================
+// 시작
+// =====================================================
 
 load(
   getTypeFromURL()
