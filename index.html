@@ -13,75 +13,500 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="카톡저장">
 <title>카톡저장</title>
+
 <style>
 *{box-sizing:border-box}
 html{--text-scale:1}
-body{margin:0;background:#f4f6f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
-header{position:sticky;top:0;z-index:5;background:#242424;color:#fff;padding:18px 16px;text-align:center;font-size:calc(22px * var(--text-scale));font-weight:700}
-main{padding:14px 12px 92px;max-width:720px;margin:auto}
-.status{text-align:center;color:#777;font-size:calc(14px * var(--text-scale));padding:12px}
-.card{background:#fff;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.08)}
-.document-normal{background:#f7f7f7;border-color:#d7d7d7}
-.document-important{background:#fffbea;border-color:#eadb9a}
-.document-image{background:#f1f9f3;border-color:#b9d8be}
-.document-video{background:#f1f7fc;border-color:#b8d0e5}
-.card-title{font-size:calc(18px * var(--text-scale));font-weight:700;margin-bottom:8px}
-.date{font-size:calc(13px * var(--text-scale));color:#888;margin-bottom:10px}
-.notes{font-size:calc(16px * var(--text-scale));line-height:1.65;white-space:pre-wrap;word-break:break-word}
-.media{margin-top:12px}
-.media img,.media video{display:block;width:100%;max-height:520px;object-fit:contain;border-radius:10px;background:#eee;margin-bottom:8px}
-.media a{display:inline-flex;align-items:center;justify-content:center;min-width:110px;height:40px;padding:0 16px;margin:4px 0 10px;border:1px solid #b8cdbb;border-radius:9px;background:#f2f8f3;color:#285c31;text-decoration:none;font-size:calc(14px * var(--text-scale));font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.action-buttons{display:flex;gap:8px;margin-top:16px}
-.copy-button,.delete-button,.edit-button{flex:1;height:46px;border-radius:10px;font-size:calc(14px * var(--text-scale));font-weight:700;cursor:pointer}
-.edit-button{border:1px solid #b9a5d2;background:#f5f0fa;color:#68458d}
-.copy-button{border:1px solid #9fbea4;background:#edf6ef;color:#285c31}
-.delete-button{border:1px solid #d9a0a0;background:#fff3f3;color:#b00000}
-.copy-button:disabled,.delete-button:disabled,.edit-button:disabled{opacity:.6}
-.media-title{font-size:calc(14px * var(--text-scale));color:#777;margin-bottom:8px}
-.bottom{position:fixed;left:0;right:0;bottom:0;background:#242424;border-top:1px solid #3b3b3b;padding:7px 5px 6px;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;z-index:10}
-.bottom button{border:0;border-radius:8px;background:transparent;color:#eee;font-size:calc(13px * var(--text-scale));font-weight:700;padding:7px 2px 6px;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
-.bottom-icon{font-size:calc(25px * var(--text-scale));line-height:1}
-.bottom button.active{color:#c5a8ee}
-.empty{text-align:center;padding:45px 10px;color:#777}
-.error{background:#fff0f0;border:1px solid #e0a0a0;color:#a00000;border-radius:12px;padding:15px;margin:12px 0;line-height:1.6}
-.personal-plus-button{background:#145A32!important;color:#fff!important;width:100%;height:52px;margin:0 0 14px;border:0;border-radius:10px;font-size:calc(16px * var(--text-scale));font-weight:800}
-#settingsButton{position:absolute!important;right:10px!important;top:50%!important;transform:translateY(-50%)!important;width:44px!important;height:44px!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:50%!important;background:rgba(255,255,255,.12)!important;color:#fff!important;font-size:calc(25px * var(--text-scale))!important;z-index:999999!important}
-#settingsPanel{position:fixed;inset:0;z-index:1000000;display:none;align-items:flex-start;justify-content:flex-end;background:rgba(0,0,0,.55)}
-#settingsPanel.open{display:flex}
-.settings-box{width:min(320px,88vw);margin:70px 10px 0 0;padding:20px;border-radius:16px;background:#fff;color:#222;box-shadow:0 12px 40px rgba(0,0,0,.4)}
-.settings-box h3{margin:0 0 18px;font-size:calc(20px * var(--text-scale))}
-.theme-buttons{display:flex;gap:10px}
-.theme-buttons button{flex:1;padding:12px 8px;border:1px solid #bbb;border-radius:10px;background:#fff;color:#222;font-weight:700;font-size:calc(15px * var(--text-scale))}
-.theme-buttons button.active{background:#145A32;border-color:#145A32;color:#fff}
-.settings-close{width:100%;margin-top:14px;padding:11px;border:0;border-radius:10px;background:#eee;color:#222;font-weight:700}
-.settings-font-button{width:100%;margin-top:10px;padding:12px 10px;border:1px solid #bbb;border-radius:10px;background:#fff;color:#222;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:space-between}
-.settings-font-button.active{background:#145A32;border-color:#145A32;color:#fff}
-.font-size-panel{display:none;margin-top:8px;padding:10px 8px 4px;border-radius:10px;background:#f4f4f4}
-.font-size-panel.open{display:block}
-.font-size-value{text-align:center;font-weight:800;font-size:14px;margin-bottom:5px}
-.font-size-range{display:block;width:100%;margin:4px 0;accent-color:#145A32;cursor:pointer}
-.font-size-labels{display:flex;justify-content:space-between;font-size:11px;color:#777}
-body.dark-theme .font-size-panel{background:#222}
-body.dark-theme .settings-font-button{background:#222;color:#eee;border-color:#555}
-body.dark-theme .settings-font-button.active{background:#145A32;border-color:#145A32;color:#fff}
 
-body.light-theme,body.light-theme main,body.light-theme #list{background:#f4f4f4!important}
-body.dark-theme,body.dark-theme main,body.dark-theme #list{background:#111!important}
-.research-form{background:#2b2b2b;border:1px solid #444;border-radius:14px;padding:15px;margin:10px 0 16px}
-.research-form input,.research-form textarea{width:100%;border:1px solid #555;border-radius:9px;background:#171717;color:#fff;padding:11px 12px;font-size:calc(16px * var(--text-scale));outline:none;margin-bottom:9px}
-.research-form textarea{min-height:130px;resize:vertical;line-height:1.55}
-.research-form-actions{display:flex;gap:9px}
-.research-form-actions button{flex:1;height:44px;border-radius:9px;border:1px solid #75658d;background:#342b40;color:#dfd0f2;font-size:calc(14px * var(--text-scale));font-weight:700}
+body{
+  margin:0;
+  background:#f4f6f5;
+  color:#222;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif
+}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:#242424;
+  color:#fff;
+  padding:18px 16px;
+  text-align:center;
+  font-size:calc(22px * var(--text-scale));
+  font-weight:700
+}
+
+main{
+  padding:14px 12px 92px;
+  max-width:720px;
+  margin:auto
+}
+
+.status{
+  text-align:center;
+  color:#777;
+  font-size:calc(14px * var(--text-scale));
+  padding:12px
+}
+
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:16px;
+  margin:10px 0;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  border:1px solid rgba(0,0,0,.08)
+}
+
+.document-normal{
+  background:#f7f7f7;
+  border-color:#d7d7d7
+}
+
+.document-important{
+  background:#fffbea;
+  border-color:#eadb9a
+}
+
+.document-image{
+  background:#f1f9f3;
+  border-color:#b9d8be
+}
+
+.document-video{
+  background:#f1f7fc;
+  border-color:#b8d0e5
+}
+
+.card-title{
+  font-size:calc(18px * var(--text-scale));
+  font-weight:700;
+  margin-bottom:8px
+}
+
+.date{
+  font-size:calc(13px * var(--text-scale));
+  color:#888;
+  margin-bottom:10px
+}
+
+.notes{
+  font-size:calc(16px * var(--text-scale));
+  line-height:1.65;
+  white-space:pre-wrap;
+  word-break:break-word
+}
+
+.media{
+  margin-top:12px
+}
+
+.media img,
+.media video{
+  display:block;
+  width:100%;
+  max-height:520px;
+  object-fit:contain;
+  border-radius:10px;
+  background:#eee;
+  margin-bottom:8px
+}
+
+.media a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:110px;
+  height:40px;
+  padding:0 16px;
+  margin:4px 0 10px;
+  border:1px solid #b8cdbb;
+  border-radius:9px;
+  background:#f2f8f3;
+  color:#285c31;
+  text-decoration:none;
+  font-size:calc(14px * var(--text-scale));
+  font-weight:700;
+  box-shadow:0 1px 3px rgba(0,0,0,.08)
+}
+
+.action-buttons{
+  display:flex;
+  gap:8px;
+  margin-top:16px
+}
+
+.copy-button,
+.delete-button,
+.edit-button{
+  flex:1;
+  height:46px;
+  border-radius:10px;
+  font-size:calc(14px * var(--text-scale));
+  font-weight:700;
+  cursor:pointer
+}
+
+.edit-button{
+  border:1px solid #b9a5d2;
+  background:#f5f0fa;
+  color:#68458d
+}
+
+.copy-button{
+  border:1px solid #9fbea4;
+  background:#edf6ef;
+  color:#285c31
+}
+
+.delete-button{
+  border:1px solid #d9a0a0;
+  background:#fff3f3;
+  color:#b00000
+}
+
+.copy-button:disabled,
+.delete-button:disabled,
+.edit-button:disabled{
+  opacity:.6
+}
+
+.media-title{
+  font-size:calc(14px * var(--text-scale));
+  color:#777;
+  margin-bottom:8px
+}
+
+.bottom{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  background:#242424;
+  border-top:1px solid #3b3b3b;
+  padding:7px 5px 6px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:3px;
+  z-index:10
+}
+
+.bottom button{
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:#eee;
+  font-size:calc(13px * var(--text-scale));
+  font-weight:700;
+  padding:7px 2px 6px;
+  min-height:62px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px
+}
+
+.bottom-icon{
+  font-size:calc(25px * var(--text-scale));
+  line-height:1
+}
+
+.bottom button.active{
+  color:#c5a8ee
+}
+
+.empty{
+  text-align:center;
+  padding:45px 10px;
+  color:#777
+}
+
+.error{
+  background:#fff0f0;
+  border:1px solid #e0a0a0;
+  color:#a00000;
+  border-radius:12px;
+  padding:15px;
+  margin:12px 0;
+  line-height:1.6
+}
+
+.personal-plus-button{
+  background:#145A32!important;
+  color:#fff!important;
+  width:100%;
+  height:52px;
+  margin:0 0 14px;
+  border:0;
+  border-radius:10px;
+  font-size:calc(16px * var(--text-scale));
+  font-weight:800
+}
+
+#settingsButton{
+  position:absolute!important;
+  right:10px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:44px!important;
+  height:44px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:rgba(255,255,255,.12)!important;
+  color:#fff!important;
+  font-size:calc(25px * var(--text-scale))!important;
+  z-index:999999!important
+}
+
+#settingsPanel{
+  position:fixed;
+  inset:0;
+  z-index:1000000;
+  display:none;
+  align-items:flex-start;
+  justify-content:flex-end;
+  background:rgba(0,0,0,.55)
+}
+
+#settingsPanel.open{
+  display:flex
+}
+
+.settings-box{
+  width:min(320px,88vw);
+  margin:70px 10px 0 0;
+  padding:20px;
+  border-radius:16px;
+  background:#fff;
+  color:#222;
+  box-shadow:0 12px 40px rgba(0,0,0,.4)
+}
+
+.settings-box h3{
+  margin:0 0 18px;
+  font-size:calc(20px * var(--text-scale))
+}
+
+.theme-buttons{
+  display:flex;
+  gap:10px
+}
+
+.theme-buttons button{
+  flex:1;
+  padding:12px 8px;
+  border:1px solid #bbb;
+  border-radius:10px;
+  background:#fff;
+  color:#222;
+  font-weight:700;
+  font-size:calc(15px * var(--text-scale))
+}
+
+.theme-buttons button.active{
+  background:#145A32;
+  border-color:#145A32;
+  color:#fff
+}
+
+.settings-close{
+  width:100%;
+  margin-top:14px;
+  padding:11px;
+  border:0;
+  border-radius:10px;
+  background:#eee;
+  color:#222;
+  font-weight:700
+}
+
+.settings-font-button{
+  width:100%;
+  margin-top:10px;
+  padding:12px 10px;
+  border:1px solid #bbb;
+  border-radius:10px;
+  background:#fff;
+  color:#222;
+  font-weight:700;
+  font-size:15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between
+}
+
+.settings-font-button.active{
+  background:#145A32;
+  border-color:#145A32;
+  color:#fff
+}
+
+/* =====================================================
+   글자 크기 조절
+   슬라이더 대신 ◀ 현재크기 ▶ 방식
+   ===================================================== */
+
+.font-size-panel{
+  display:none;
+  margin-top:8px;
+  padding:10px 8px;
+  border-radius:10px;
+  background:#f4f4f4;
+  align-items:center;
+  justify-content:center;
+  gap:8px
+}
+
+.font-size-panel.open{
+  display:flex
+}
+
+.font-size-value{
+  flex:1;
+  text-align:center;
+  font-weight:800;
+  font-size:calc(17px * var(--text-scale));
+  color:#222
+}
+
+.font-size-arrow{
+  width:48px;
+  height:42px;
+  border:1px solid #bbb;
+  border-radius:9px;
+  background:#fff;
+  color:#222;
+  font-size:22px;
+  font-weight:900;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center
+}
+
+.font-size-arrow:active{
+  transform:scale(.95)
+}
+
+/* 어두운 배경일 때 글자 크기 숫자와 화살표를 흰색으로 */
+
+body.dark-theme .font-size-panel{
+  background:#222
+}
+
+body.dark-theme .font-size-value{
+  color:#fff
+}
+
+body.dark-theme .font-size-arrow{
+  background:#333;
+  color:#fff;
+  border-color:#555
+}
+
+body.dark-theme .settings-font-button{
+  background:#222;
+  color:#eee;
+  border-color:#555
+}
+
+body.dark-theme .settings-font-button.active{
+  background:#145A32;
+  border-color:#145A32;
+  color:#fff
+}
+
+body.light-theme,
+body.light-theme main,
+body.light-theme #list{
+  background:#f4f4f4!important
+}
+
+body.dark-theme,
+body.dark-theme main,
+body.dark-theme #list{
+  background:#111!important
+}
+
+.research-form{
+  background:#2b2b2b;
+  border:1px solid #444;
+  border-radius:14px;
+  padding:15px;
+  margin:10px 0 16px
+}
+
+.research-form input,
+.research-form textarea{
+  width:100%;
+  border:1px solid #555;
+  border-radius:9px;
+  background:#171717;
+  color:#fff;
+  padding:11px 12px;
+  font-size:calc(16px * var(--text-scale));
+  outline:none;
+  margin-bottom:9px
+}
+
+.research-form textarea{
+  min-height:130px;
+  resize:vertical;
+  line-height:1.55
+}
+
+.research-form-actions{
+  display:flex;
+  gap:9px
+}
+
+.research-form-actions button{
+  flex:1;
+  height:44px;
+  border-radius:9px;
+  border:1px solid #75658d;
+  background:#342b40;
+  color:#dfd0f2;
+  font-size:calc(14px * var(--text-scale));
+  font-weight:700
+}
+
 @media(max-width:480px){
-  .bottom{padding:6px 3px 5px}
-  .bottom button{min-height:62px;font-size:calc(11px * var(--text-scale))}
-  .bottom-icon{font-size:calc(23px * var(--text-scale))}
-  .action-buttons{gap:6px}
-  .edit-button,.copy-button,.delete-button{font-size:calc(13px * var(--text-scale));padding:0 3px}
+
+  .bottom{
+    padding:6px 3px 5px
+  }
+
+  .bottom button{
+    min-height:62px;
+    font-size:calc(11px * var(--text-scale))
+  }
+
+  .bottom-icon{
+    font-size:calc(23px * var(--text-scale))
+  }
+
+  .action-buttons{
+    gap:6px
+  }
+
+  .edit-button,
+  .copy-button,
+  .delete-button{
+    font-size:calc(13px * var(--text-scale));
+    padding:0 3px
+  }
 }
 </style>
 </head>
+
 <body>
+
 <header id="pageTitle">카톡저장</header>
 
 <main id="list">
@@ -89,62 +514,124 @@ body.dark-theme,body.dark-theme main,body.dark-theme #list{background:#111!impor
 </main>
 
 <nav class="bottom">
-<button data-type="일반문서"><span class="bottom-icon">📄</span><span>일반문서</span></button>
-<button data-type="중요문서"><span class="bottom-icon">⭐</span><span>중요문서</span></button>
-<button data-type="이미지"><span class="bottom-icon">🖼️</span><span>이미지</span></button>
-<button data-type="동영상"><span class="bottom-icon">🎬</span><span>동영상</span></button>
-<button data-type="개인연구"><span class="bottom-icon">📚</span><span>개인연구</span></button>
+  <button data-type="일반문서">
+    <span class="bottom-icon">📄</span>
+    <span>일반문서</span>
+  </button>
+
+  <button data-type="중요문서">
+    <span class="bottom-icon">⭐</span>
+    <span>중요문서</span>
+  </button>
+
+  <button data-type="이미지">
+    <span class="bottom-icon">🖼️</span>
+    <span>이미지</span>
+  </button>
+
+  <button data-type="동영상">
+    <span class="bottom-icon">🎬</span>
+    <span>동영상</span>
+  </button>
+
+  <button data-type="개인연구">
+    <span class="bottom-icon">📚</span>
+    <span>개인연구</span>
+  </button>
 </nav>
 
 <div id="settingsPanel" aria-hidden="true">
+
   <div class="settings-box">
+
     <h3>배경 설정</h3>
+
     <div class="theme-buttons">
-      <button id="themeLight" type="button">☀️ 배경 밝게</button>
-      <button id="themeDark" type="button">🌙 배경 어둡게</button>
+      <button id="themeLight" type="button">
+        ☀️ 배경 밝게
+      </button>
+
+      <button id="themeDark" type="button">
+        🌙 배경 어둡게
+      </button>
     </div>
 
-    <button id="fontSizeButton" class="settings-font-button" type="button">
+    <button
+      id="fontSizeButton"
+      class="settings-font-button"
+      type="button">
+
       <span>A 글자 크기</span>
+
       <span id="fontSizeValueButton">100%</span>
+
     </button>
 
     <div id="fontSizePanel" class="font-size-panel">
-      <div id="fontSizeValue" class="font-size-value">100%</div>
-      <input
-        id="fontSizeRange"
-        class="font-size-range"
-        type="range"
-        min="80"
-        max="150"
-        step="1"
-        value="100"
-        aria-label="글자 크기">
-      <div class="font-size-labels">
-        <span>80%</span>
-        <span>150%</span>
+
+      <button
+        id="fontSizeDown"
+        class="font-size-arrow"
+        type="button"
+        aria-label="글자 크기 5% 감소">
+        ◀
+      </button>
+
+      <div
+        id="fontSizeValue"
+        class="font-size-value">
+        100%
       </div>
+
+      <button
+        id="fontSizeUp"
+        class="font-size-arrow"
+        type="button"
+        aria-label="글자 크기 5% 증가">
+        ▶
+      </button>
+
     </div>
 
-    <button id="settingsClose" class="settings-close" type="button">닫기</button>
+    <button
+      id="settingsClose"
+      class="settings-close"
+      type="button">
+      닫기
+    </button>
+
   </div>
+
 </div>
 
 <script>
+
 const API_URL="https://kakao.s01021319376.workers.dev/";
 const KAKAO_TABLE="카카오톡 기록";
 const PERSONAL_TABLE="개인연구";
+
 const list=document.getElementById("list");
 const pageTitle=document.getElementById("pageTitle");
+
 let allRecords=[];
 
 function getTypeFromURL(){
+
   const t=new URLSearchParams(location.search).get("type");
-  const a=["일반문서","중요문서","이미지","동영상","개인연구"];
+
+  const a=[
+    "일반문서",
+    "중요문서",
+    "이미지",
+    "동영상",
+    "개인연구"
+  ];
+
   return a.includes(t)?t:"일반문서";
 }
 
 function setPageTitle(type){
+
   const t={
     일반문서:"📄 일반문서",
     중요문서:"⭐ 중요문서",
@@ -156,107 +643,200 @@ function setPageTitle(type){
   pageTitle.innerHTML=`<span>${t}</span>`;
 
   const g=document.createElement("button");
+
   g.id="settingsButton";
   g.type="button";
   g.setAttribute("aria-label","설정");
   g.textContent="⚙️";
+
   pageTitle.appendChild(g);
 }
 
 function field(f,n){
+
   for(const x of n)
-    if(f[x]!==undefined&&f[x]!==null&&f[x]!=="") return f[x];
+    if(
+      f[x]!==undefined&&
+      f[x]!==null&&
+      f[x]!==""
+    )
+      return f[x];
+
   return "";
 }
 
 function getDocumentType(r){
-  return String(field(r.fields||{},[
-    "Name","문서구분","DocumentType","자료구분","구분","Type","종류"
-  ])).trim();
+
+  return String(
+    field(
+      r.fields||{},
+      [
+        "Name",
+        "문서구분",
+        "DocumentType",
+        "자료구분",
+        "구분",
+        "Type",
+        "종류"
+      ]
+    )
+  ).trim();
 }
 
 function getDate(r){
-  return field(r.fields||{},["Date","날짜","작성일"]);
+
+  return field(
+    r.fields||{},
+    [
+      "Date",
+      "날짜",
+      "작성일"
+    ]
+  );
 }
 
 function getTitle(r){
-  return field(r.fields||{},["Title","제목","Name"])||"카톡 기록";
+
+  return field(
+    r.fields||{},
+    [
+      "Title",
+      "제목",
+      "Name"
+    ]
+  )||"카톡 기록";
 }
 
 function getNotes(r){
-  return field(r.fields||{},["Notes","내용","Text","text"]);
+
+  return field(
+    r.fields||{},
+    [
+      "Notes",
+      "내용",
+      "Text",
+      "text"
+    ]
+  );
 }
 
 function attachmentList(f){
+
   const a=[];
+
   for(const[k,v]of Object.entries(f||{}))
+
     if(Array.isArray(v))
+
       for(const i of v)
-        if(i&&typeof i==="object"&&i.url)
+
+        if(
+          i&&
+          typeof i==="object"&&
+          i.url
+        )
+
           a.push({
             key:k,
             url:i.url,
             type:String(i.type||"").toLowerCase(),
             name:i.filename||k
           });
+
   return a;
 }
 
 function isImageFile(f){
+
   return f.type.startsWith("image/") ||
     /\.(jpg|jpeg|png|gif|webp|heic|heif)$/i.test(f.name);
 }
 
 function isVideoFile(f){
+
   return f.type.startsWith("video/") ||
     /\.(mp4|mov|m4v|webm|avi|mkv)$/i.test(f.name);
 }
 
 function getRecordSortTime(r){
+
   if(r.createdTime){
+
     const x=Date.parse(r.createdTime);
-    if(!Number.isNaN(x))return x;
+
+    if(!Number.isNaN(x))
+      return x;
   }
+
   const x=Date.parse(String(getDate(r)));
+
   return Number.isNaN(x)?0:x;
 }
 
 function sortNewestFirst(r){
-  return[...r].sort((a,b)=>getRecordSortTime(b)-getRecordSortTime(a));
+
+  return[
+    ...r
+  ].sort(
+    (a,b)=>
+      getRecordSortTime(b)-
+      getRecordSortTime(a)
+  );
 }
 
 function getCardClass(t){
-  return t==="중요문서"?"card document-important":
-    t==="이미지"?"card document-image":
-    t==="동영상"?"card document-video":
-    t==="일반문서"?"card document-normal":"card";
+
+  return t==="중요문서"
+    ?"card document-important":
+    t==="이미지"
+    ?"card document-image":
+    t==="동영상"
+    ?"card document-video":
+    t==="일반문서"
+    ?"card document-normal":
+    "card";
 }
 
 async function copyNotes(r){
+
   const n=getNotes(r);
-  if(!n)return alert("복사할 내용이 없습니다.");
+
+  if(!n)
+    return alert("복사할 내용이 없습니다.");
 
   try{
-    await navigator.clipboard.writeText(String(n));
+
+    await navigator.clipboard.writeText(
+      String(n)
+    );
+
   }catch(e){
+
     const x=document.createElement("textarea");
+
     x.value=n;
     x.style.position="fixed";
     x.style.left="-9999px";
+
     document.body.appendChild(x);
+
     x.select();
+
     document.execCommand("copy");
+
     x.remove();
   }
 
   alert("📋 복사되었습니다.");
 }
 
+
 // =====================================================
 // 카카오톡 기록 수정
 // =====================================================
 
 function showKakaoEditForm(r){
+
   const f=r.fields||{};
   const o=document.createElement("div");
 
@@ -265,8 +845,10 @@ function showKakaoEditForm(r){
     "display:flex;align-items:flex-end;justify-content:center";
 
   o.innerHTML=`
+
     <div style="width:min(100%,720px);background:#242424;color:#fff;
     border-radius:18px 18px 0 0;padding:20px">
+
       <div style="font-size:21px;font-weight:800;margin-bottom:15px">
         카톡 기록 수정
       </div>
@@ -284,14 +866,21 @@ function showKakaoEditForm(r){
         line-height:1.6;resize:vertical">${escapeHtml(f.Notes||"")}</textarea>
 
       <div style="display:flex;gap:9px;margin-top:12px">
+
         <button id="krCancel" type="button"
           style="flex:1;height:46px;border:1px solid #555;border-radius:9px;
-          background:#292929;color:#eee;font-weight:700">취소</button>
+          background:#292929;color:#eee;font-weight:700">
+          취소
+        </button>
 
         <button id="krSave" type="button"
           style="flex:1;height:46px;border:0;border-radius:9px;
-          background:#8d72b8;color:#fff;font-weight:800">수정 저장</button>
+          background:#8d72b8;color:#fff;font-weight:800">
+          수정 저장
+        </button>
+
       </div>
+
     </div>`;
 
   document.body.appendChild(o);
@@ -299,91 +888,134 @@ function showKakaoEditForm(r){
   o.querySelector("#krCancel").onclick=()=>o.remove();
 
   o.querySelector("#krSave").onclick=async()=>{
-    const name=o.querySelector("#krName").value.trim();
-    const notes=o.querySelector("#krNotes").value.trim();
 
-    if(!name&&!notes){
+    const name=
+      o.querySelector("#krName").value.trim();
+
+    const notes=
+      o.querySelector("#krNotes").value.trim();
+
+    if(!name&&!notes)
       return alert("내용을 입력해 주세요.");
-    }
 
     const b=o.querySelector("#krSave");
+
     b.disabled=true;
     b.textContent="수정 중...";
 
     try{
-      const q=await fetch(API_URL,{
-        method:"PATCH",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          table:"카카오톡 기록",
-          recordId:r.id,
-          fields:{
-            Name:name,
-            Notes:notes
-          }
-        })
-      });
+
+      const q=await fetch(
+        API_URL,
+        {
+          method:"PATCH",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({
+            table:"카카오톡 기록",
+            recordId:r.id,
+            fields:{
+              Name:name,
+              Notes:notes
+            }
+          })
+        }
+      );
 
       const d=await q.json();
 
       if(!q.ok||!d.success)
-        throw Error(d.error?.message||d.error||"수정에 실패했습니다.");
+        throw Error(
+          d.error?.message||
+          d.error||
+          "수정에 실패했습니다."
+        );
 
       o.remove();
+
       await load(getTypeFromURL());
 
     }catch(e){
-      alert("수정하지 못했습니다.\n\n"+e.message);
+
+      alert(
+        "수정하지 못했습니다.\n\n"+
+        e.message
+      );
+
       b.disabled=false;
       b.textContent="수정 저장";
     }
   };
 }
 
+
 // =====================================================
 // 카카오톡 기록 삭제
 // =====================================================
 
 async function deleteRecord(r,c){
-  if(!r.id)return alert("삭제할 자료의 ID를 찾지 못했습니다.");
+
+  if(!r.id)
+    return alert(
+      "삭제할 자료의 ID를 찾지 못했습니다."
+    );
 
   if(!confirm(
     "이 자료를 삭제하시겠습니까?\n\n삭제하면 Airtable에서도 삭제됩니다."
-  ))return;
+  ))
+    return;
 
   const b=c.querySelector(".delete-button");
 
   if(b){
+
     b.disabled=true;
     b.textContent="삭제 중...";
   }
 
   try{
-    const q=await fetch(API_URL,{
-      method:"DELETE",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        table:"카카오톡 기록",
-        recordId:r.id
-      })
-    });
+
+    const q=await fetch(
+      API_URL,
+      {
+        method:"DELETE",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          table:"카카오톡 기록",
+          recordId:r.id
+        })
+      }
+    );
 
     const d=await q.json();
 
     if(!q.ok||!d.success)
-      throw Error(d.error?.message||d.error||"삭제에 실패했습니다.");
+      throw Error(
+        d.error?.message||
+        d.error||
+        "삭제에 실패했습니다."
+      );
 
     await load(getTypeFromURL());
 
   }catch(e){
-    alert("삭제하지 못했습니다.\n\n"+e.message);
+
+    alert(
+      "삭제하지 못했습니다.\n\n"+
+      e.message
+    );
 
     if(b){
+
       b.disabled=false;
       b.textContent="🗑️ 삭제";
     }
   }
 }
+
 
 // =====================================================
 // 카카오톡 기록 버튼
@@ -391,87 +1023,126 @@ async function deleteRecord(r,c){
 // =====================================================
 
 function addActionButtons(r,c){
+
   const a=document.createElement("div");
+
   a.className="action-buttons";
 
   const e=document.createElement("button");
+
   e.className="edit-button";
   e.textContent="✏️ 수정";
+
   e.onclick=()=>showKakaoEditForm(r);
 
   const x=document.createElement("button");
+
   x.className="copy-button";
   x.textContent="📋 복사";
+
   x.onclick=()=>copyNotes(r);
 
   const d=document.createElement("button");
+
   d.className="delete-button";
   d.textContent="🗑️ 삭제";
+
   d.onclick=()=>deleteRecord(r,c);
 
   a.append(e,x,d);
+
   c.appendChild(a);
 }
 
 function renderDocuments(rs,type){
+
   list.innerHTML="";
 
   if(!rs.length){
-    list.innerHTML=`<div class="empty">${type} 자료가 없습니다.</div>`;
+
+    list.innerHTML=
+      `<div class="empty">${type} 자료가 없습니다.</div>`;
+
     return;
   }
 
   rs.forEach(r=>{
+
     const c=document.createElement("section");
+
     c.className=getCardClass(type);
 
     const t=document.createElement("div");
+
     t.className="card-title";
     t.textContent=getTitle(r);
+
     c.appendChild(t);
 
     const dt=getDate(r);
+
     if(dt){
+
       const d=document.createElement("div");
+
       d.className="date";
       d.textContent=dt;
+
       c.appendChild(d);
     }
 
     const n=getNotes(r);
+
     if(n){
+
       const e=document.createElement("div");
+
       e.className="notes";
       e.textContent=n;
+
       c.appendChild(e);
     }
 
-    const fs=attachmentList(r.fields||{});
+    const fs=attachmentList(
+      r.fields||{}
+    );
 
     if(fs.length){
+
       const m=document.createElement("div");
+
       m.className="media";
 
       fs.forEach(f=>{
+
         if(isVideoFile(f)){
+
           const v=document.createElement("video");
+
           v.src=f.url;
           v.controls=true;
           v.playsInline=true;
+
           m.appendChild(v);
+
         }else if(isImageFile(f)){
+
           const i=document.createElement("img");
+
           i.src=f.url;
           i.alt=f.name;
           i.loading="lazy";
+
           m.appendChild(i);
         }
 
         const a=document.createElement("a");
+
         a.href=f.url;
         a.target="_blank";
         a.rel="noopener";
         a.textContent="📎 파일 보기";
+
         m.appendChild(a);
       });
 
@@ -479,90 +1150,134 @@ function renderDocuments(rs,type){
     }
 
     addActionButtons(r,c);
+
     list.appendChild(c);
   });
 }
 
 function renderMedia(type){
+
   const arr=[];
 
   allRecords.forEach(r=>{
-    const fs=attachmentList(r.fields||{})
-      .filter(type==="이미지"?isImageFile:isVideoFile);
 
-    if(fs.length)arr.push({record:r,files:fs});
+    const fs=attachmentList(
+      r.fields||{}
+    ).filter(
+      type==="이미지"
+        ?isImageFile
+        :isVideoFile
+    );
+
+    if(fs.length)
+      arr.push({
+        record:r,
+        files:fs
+      });
   });
 
-  arr.sort((a,b)=>
-    getRecordSortTime(b.record)-getRecordSortTime(a.record)
+  arr.sort(
+    (a,b)=>
+      getRecordSortTime(b.record)-
+      getRecordSortTime(a.record)
   );
 
   list.innerHTML="";
 
   if(!arr.length){
-    list.innerHTML=`<div class="empty">${type} 자료가 없습니다.</div>`;
+
+    list.innerHTML=
+      `<div class="empty">${type} 자료가 없습니다.</div>`;
+
     return;
   }
 
   arr.forEach(o=>{
+
     const r=o.record;
+
     const c=document.createElement("section");
+
     c.className=getCardClass(type);
 
     const t=document.createElement("div");
+
     t.className="card-title";
     t.textContent=getTitle(r);
+
     c.appendChild(t);
 
     const dt=getDate(r);
+
     if(dt){
+
       const d=document.createElement("div");
+
       d.className="date";
       d.textContent=dt;
+
       c.appendChild(d);
     }
 
     const n=getNotes(r);
+
     if(n){
+
       const e=document.createElement("div");
+
       e.className="notes";
       e.textContent=n;
+
       c.appendChild(e);
     }
 
     const m=document.createElement("div");
+
     m.className="media";
 
     o.files.forEach(f=>{
+
       if(type==="이미지"){
+
         const i=document.createElement("img");
+
         i.src=f.url;
         i.alt=f.name;
         i.loading="lazy";
+
         m.appendChild(i);
+
       }else{
+
         const v=document.createElement("video");
+
         v.src=f.url;
         v.controls=true;
         v.playsInline=true;
+
         m.appendChild(v);
       }
 
       const a=document.createElement("a");
+
       a.href=f.url;
       a.target="_blank";
       a.rel="noopener";
       a.textContent="📎 파일 보기";
+
       m.appendChild(a);
     });
 
     c.appendChild(m);
+
     addActionButtons(r,c);
+
     list.appendChild(c);
   });
 }
 
 function escapeHtml(v){
+
   return String(v??"")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
@@ -571,11 +1286,13 @@ function escapeHtml(v){
     .replace(/'/g,"&#039;");
 }
 
+
 // =====================================================
 // 개인연구 기존 기능
 // =====================================================
 
 function showPersonalResearchForm(r=null){
+
   const edit=!!r;
   const f=edit?(r.fields||{}):{};
   const o=document.createElement("div");
@@ -585,6 +1302,7 @@ function showPersonalResearchForm(r=null){
     "display:flex;align-items:flex-end;justify-content:center";
 
   o.innerHTML=`
+
     <div style="width:min(100%,720px);background:#242424;color:#fff;
     border-radius:18px 18px 0 0;padding:20px">
 
@@ -605,16 +1323,21 @@ function showPersonalResearchForm(r=null){
         resize:vertical">${escapeHtml(f.Notes||"")}</textarea>
 
       <div style="display:flex;gap:9px;margin-top:12px">
+
         <button id="prCancel" type="button"
           style="flex:1;height:46px;border:1px solid #555;border-radius:9px;
-          background:#292929;color:#eee;font-weight:700">취소</button>
+          background:#292929;color:#eee;font-weight:700">
+          취소
+        </button>
 
         <button id="prSave" type="button"
           style="flex:1;height:46px;border:0;border-radius:9px;
           background:#8d72b8;color:#fff;font-weight:800">
           ${edit?"수정 저장":"기록 저장"}
         </button>
+
       </div>
+
     </div>`;
 
   document.body.appendChild(o);
@@ -622,144 +1345,220 @@ function showPersonalResearchForm(r=null){
   o.querySelector("#prCancel").onclick=()=>o.remove();
 
   o.querySelector("#prSave").onclick=async()=>{
-    const name=o.querySelector("#prName").value.trim();
-    const notes=o.querySelector("#prNotes").value.trim();
+
+    const name=
+      o.querySelector("#prName").value.trim();
+
+    const notes=
+      o.querySelector("#prNotes").value.trim();
 
     if(!name&&!notes)
-      return alert("제목이나 연구 내용을 입력해 주세요.");
+      return alert(
+        "제목이나 연구 내용을 입력해 주세요."
+      );
 
     const b=o.querySelector("#prSave");
+
     b.disabled=true;
-    b.textContent=edit?"수정 중...":"기록 중...";
+    b.textContent=
+      edit?"수정 중...":"기록 중...";
 
     try{
-      const q=await fetch(API_URL,{
-        method:edit?"PATCH":"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          table:"개인연구",
-          ...(edit?{recordId:r.id}:{}),
-          fields:{
-            Name:name,
-            Notes:notes
-          }
-        })
-      });
+
+      const q=await fetch(
+        API_URL,
+        {
+          method:edit?"PATCH":"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({
+            table:"개인연구",
+            ...(edit?{recordId:r.id}:{}),
+            fields:{
+              Name:name,
+              Notes:notes
+            }
+          })
+        }
+      );
 
       const d=await q.json();
 
       if(!q.ok||!d.success)
-        throw Error(d.error?.message||d.error||"저장에 실패했습니다.");
+        throw Error(
+          d.error?.message||
+          d.error||
+          "저장에 실패했습니다."
+        );
 
       o.remove();
+
       await load("개인연구");
 
     }catch(e){
-      alert("개인연구 저장에 실패했습니다.\n\n"+e.message);
+
+      alert(
+        "개인연구 저장에 실패했습니다.\n\n"+
+        e.message
+      );
+
       b.disabled=false;
-      b.textContent=edit?"수정 저장":"기록 저장";
+
+      b.textContent=
+        edit?"수정 저장":"기록 저장";
     }
   };
 }
 
 async function deletePersonalResearch(r){
-  if(!confirm("이 개인연구 기록을 삭제하시겠습니까?"))return;
+
+  if(!confirm(
+    "이 개인연구 기록을 삭제하시겠습니까?"
+  ))
+    return;
 
   try{
-    const q=await fetch(API_URL,{
-      method:"DELETE",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        table:"개인연구",
-        recordId:r.id
-      })
-    });
+
+    const q=await fetch(
+      API_URL,
+      {
+        method:"DELETE",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          table:"개인연구",
+          recordId:r.id
+        })
+      }
+    );
 
     const d=await q.json();
 
     if(!q.ok||!d.success)
-      throw Error(d.error?.message||d.error||"삭제에 실패했습니다.");
+      throw Error(
+        d.error?.message||
+        d.error||
+        "삭제에 실패했습니다."
+      );
 
     await load("개인연구");
 
   }catch(e){
-    alert("개인연구 삭제에 실패했습니다.\n\n"+e.message);
+
+    alert(
+      "개인연구 삭제에 실패했습니다.\n\n"+
+      e.message
+    );
   }
 }
 
 function renderPersonalResearch(rs){
+
   list.innerHTML="";
 
   const a=document.createElement("button");
+
   a.className="personal-plus-button";
   a.textContent="＋";
+
   a.onclick=()=>showPersonalResearchForm();
+
   list.appendChild(a);
 
-  const pr=sortNewestFirst((rs||[]).filter(r=>{
-    const f=r.fields||{};
-    return f.Name!==undefined||f.Notes!==undefined;
-  }));
+  const pr=sortNewestFirst(
+    (rs||[]).filter(r=>{
+
+      const f=r.fields||{};
+
+      return f.Name!==undefined||
+             f.Notes!==undefined;
+    })
+  );
 
   if(!pr.length){
+
     list.insertAdjacentHTML(
       "beforeend",
       '<div class="empty">개인연구 기록이 없습니다.</div>'
     );
+
     return;
   }
 
   pr.forEach(r=>{
+
     const f=r.fields||{};
+
     const c=document.createElement("section");
+
     c.className="card";
 
     const t=document.createElement("div");
+
     t.className="card-title";
     t.textContent=f.Name||"개인연구";
+
     c.appendChild(t);
 
     const dt=getDate(r);
 
     if(dt){
+
       const d=document.createElement("div");
+
       d.className="date";
       d.textContent=dt;
+
       c.appendChild(d);
     }
 
     if(f.Notes){
+
       const n=document.createElement("div");
+
       n.className="notes";
       n.textContent=f.Notes;
+
       c.appendChild(n);
     }
 
     const ac=document.createElement("div");
+
     ac.className="action-buttons";
 
     const e=document.createElement("button");
+
     e.className="edit-button";
     e.textContent="✏️ 수정";
+
     e.onclick=()=>showPersonalResearchForm(r);
 
     const x=document.createElement("button");
+
     x.className="copy-button";
     x.textContent="📋 복사";
+
     x.onclick=()=>copyNotes(r);
 
     const d=document.createElement("button");
+
     d.className="delete-button";
     d.textContent="🗑️ 삭제";
+
     d.onclick=()=>deletePersonalResearch(r);
 
     ac.append(e,x,d);
+
     c.appendChild(ac);
+
     list.appendChild(c);
   });
 }
 
 function render(type){
+
   setPageTitle(type);
 
   if(type==="개인연구")
@@ -770,15 +1569,23 @@ function render(type){
 
   renderDocuments(
     sortNewestFirst(
-      allRecords.filter(r=>getDocumentType(r)===type)
+      allRecords.filter(
+        r=>getDocumentType(r)===type
+      )
     ),
     type
   );
 }
 
 async function load(type){
+
   document.querySelectorAll(".bottom button")
-    .forEach(b=>b.classList.toggle("active",b.dataset.type===type));
+    .forEach(
+      b=>b.classList.toggle(
+        "active",
+        b.dataset.type===type
+      )
+    );
 
   setPageTitle(type);
 
@@ -786,33 +1593,46 @@ async function load(type){
     `<div class="status">${type} 자료를 불러오는 중입니다...</div>`;
 
   try{
-    const table =
+
+    const table=
       type==="개인연구"
-      ? PERSONAL_TABLE
-      : KAKAO_TABLE;
+      ?PERSONAL_TABLE
+      :KAKAO_TABLE;
 
-    const u =
-      API_URL+"?maxRecords=100&table="+
+    const u=
+      API_URL+
+      "?maxRecords=100&table="+
       encodeURIComponent(table)+
-      "&t="+Date.now();
+      "&t="+
+      Date.now();
 
-    const q=await fetch(u,{cache:"no-store"});
+    const q=await fetch(
+      u,
+      {
+        cache:"no-store"
+      }
+    );
 
     if(!q.ok)
-      throw Error("Worker 응답 오류: HTTP "+q.status);
+      throw Error(
+        "Worker 응답 오류: HTTP "+
+        q.status
+      );
 
     const d=await q.json();
 
     if(!d.success)
       throw Error("Worker 조회 실패");
 
-    allRecords=Array.isArray(d.records)
+    allRecords=
+      Array.isArray(d.records)
       ?sortNewestFirst(d.records)
       :[];
 
     render(type);
 
   }catch(e){
+
     console.error(e);
 
     list.innerHTML=
@@ -825,13 +1645,19 @@ async function load(type){
 
 document.querySelectorAll(".bottom button")
 .forEach(b=>{
+
   b.onclick=()=>{
+
     const t=b.dataset.type;
+
     history.pushState(
       {},
       "",
-      location.pathname+"?type="+encodeURIComponent(t)
+      location.pathname+
+      "?type="+
+      encodeURIComponent(t)
     );
+
     load(t);
   };
 });
@@ -841,85 +1667,262 @@ addEventListener(
   ()=>load(getTypeFromURL())
 );
 
+
+// =====================================================
+// 설정
+// =====================================================
+
 (function(){
-  const p=document.getElementById("settingsPanel");
-  const c=document.getElementById("settingsClose");
-  const l=document.getElementById("themeLight");
-  const d=document.getElementById("themeDark");
-  const fb=document.getElementById("fontSizeButton");
-  const fp=document.getElementById("fontSizePanel");
-  const fr=document.getElementById("fontSizeRange");
-  const fv=document.getElementById("fontSizeValue");
-  const fvb=document.getElementById("fontSizeValueButton");
+
+  const p=
+    document.getElementById("settingsPanel");
+
+  const c=
+    document.getElementById("settingsClose");
+
+  const l=
+    document.getElementById("themeLight");
+
+  const d=
+    document.getElementById("themeDark");
+
+  const fb=
+    document.getElementById("fontSizeButton");
+
+  const fp=
+    document.getElementById("fontSizePanel");
+
+  const fd=
+    document.getElementById("fontSizeDown");
+
+  const fu=
+    document.getElementById("fontSizeUp");
+
+  const fv=
+    document.getElementById("fontSizeValue");
+
+  const fvb=
+    document.getElementById("fontSizeValueButton");
+
 
   function theme(m){
-    document.body.classList.toggle("light-theme",m==="light");
-    document.body.classList.toggle("dark-theme",m==="dark");
-    localStorage.setItem("kkoTheme",m);
-    l.classList.toggle("active",m==="light");
-    d.classList.toggle("active",m==="dark");
+
+    document.body.classList.toggle(
+      "light-theme",
+      m==="light"
+    );
+
+    document.body.classList.toggle(
+      "dark-theme",
+      m==="dark"
+    );
+
+    localStorage.setItem(
+      "kkoTheme",
+      m
+    );
+
+    l.classList.toggle(
+      "active",
+      m==="light"
+    );
+
+    d.classList.toggle(
+      "active",
+      m==="dark"
+    );
   }
 
-  theme(localStorage.getItem("kkoTheme")||"dark");
 
-  document.addEventListener("click",e=>{
-    if(e.target&&e.target.id==="settingsButton"){
-      p.classList.add("open");
-      p.setAttribute("aria-hidden","false");
+  theme(
+    localStorage.getItem("kkoTheme")||
+    "dark"
+  );
+
+
+  document.addEventListener(
+    "click",
+    e=>{
+
+      if(
+        e.target&&
+        e.target.id==="settingsButton"
+      ){
+
+        p.classList.add("open");
+
+        p.setAttribute(
+          "aria-hidden",
+          "false"
+        );
+      }
     }
-  });
+  );
+
 
   c.onclick=()=>{
+
     p.classList.remove("open");
-    p.setAttribute("aria-hidden","true");
+
+    p.setAttribute(
+      "aria-hidden",
+      "true"
+    );
   };
 
+
   p.onclick=e=>{
+
     if(e.target===p){
+
       p.classList.remove("open");
-      p.setAttribute("aria-hidden","true");
+
+      p.setAttribute(
+        "aria-hidden",
+        "true"
+      );
     }
   };
 
+
   l.onclick=()=>theme("light");
+
   d.onclick=()=>theme("dark");
 
-  function applyFontSize(value, save=true){
-    const n=Math.min(150,Math.max(80,Number(value)||100));
-    document.documentElement.style.setProperty("--text-scale",n/100);
-    fr.value=n;
-    fv.textContent=n+"%";
-    fvb.textContent=n+"%";
+
+  // ===================================================
+  // 글자 크기
+  // 80% ~ 150%
+  // 5% 단위 조절
+  // ===================================================
+
+  function applyFontSize(
+    value,
+    save=true
+  ){
+
+    const n=Math.min(
+      150,
+      Math.max(
+        80,
+        Number(value)||100
+      )
+    );
+
+    document.documentElement.style.setProperty(
+      "--text-scale",
+      n/100
+    );
+
+    fv.textContent=
+      n+"%";
+
+    fvb.textContent=
+      n+"%";
+
     if(save){
+
       try{
-        localStorage.setItem("kkoFontSize",String(n));
+
+        localStorage.setItem(
+          "kkoFontSize",
+          String(n)
+        );
+
       }catch(e){}
     }
   }
 
+
   function loadFontSize(){
+
     let n=100;
+
     try{
-      n=Number(localStorage.getItem("kkoFontSize"))||100;
+
+      n=
+        Number(
+          localStorage.getItem(
+            "kkoFontSize"
+          )
+        )||100;
+
     }catch(e){}
-    applyFontSize(n,false);
+
+    applyFontSize(
+      n,
+      false
+    );
   }
 
+
   fb.onclick=()=>{
-    fp.classList.toggle("open");
-    fb.classList.toggle("active",fp.classList.contains("open"));
+
+    fp.classList.toggle(
+      "open"
+    );
+
+    fb.classList.toggle(
+      "active",
+      fp.classList.contains("open")
+    );
   };
 
-  fp.onclick=e=>e.stopPropagation();
 
-  fr.oninput=()=>{
-    applyFontSize(fr.value,true);
+  fp.onclick=e=>
+    e.stopPropagation();
+
+
+  // 왼쪽 화살표 → 5% 감소
+
+  fd.onclick=()=>{
+
+    const current=
+      parseInt(
+        fv.textContent.replace(
+          "%",
+          ""
+        ),
+        10
+      )||100;
+
+    applyFontSize(
+      current-5,
+      true
+    );
   };
+
+
+  // 오른쪽 화살표 → 5% 증가
+
+  fu.onclick=()=>{
+
+    const current=
+      parseInt(
+        fv.textContent.replace(
+          "%",
+          ""
+        ),
+        10
+      )||100;
+
+    applyFontSize(
+      current+5,
+      true
+    );
+  };
+
 
   loadFontSize();
+
 })();
 
-load(getTypeFromURL());
+
+load(
+  getTypeFromURL()
+);
+
 </script>
+
 </body>
 </html>
