@@ -15,57 +15,69 @@
 <title>카톡저장</title>
 <style>
 *{box-sizing:border-box}
+html{--text-scale:1}
 body{margin:0;background:#f4f6f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
-header{position:sticky;top:0;z-index:5;background:#242424;color:#fff;padding:18px 16px;text-align:center;font-size:22px;font-weight:700}
+header{position:sticky;top:0;z-index:5;background:#242424;color:#fff;padding:18px 16px;text-align:center;font-size:calc(22px * var(--text-scale));font-weight:700}
 main{padding:14px 12px 92px;max-width:720px;margin:auto}
-.status{text-align:center;color:#777;font-size:14px;padding:12px}
+.status{text-align:center;color:#777;font-size:calc(14px * var(--text-scale));padding:12px}
 .card{background:#fff;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.08)}
 .document-normal{background:#f7f7f7;border-color:#d7d7d7}
 .document-important{background:#fffbea;border-color:#eadb9a}
 .document-image{background:#f1f9f3;border-color:#b9d8be}
 .document-video{background:#f1f7fc;border-color:#b8d0e5}
-.card-title{font-size:18px;font-weight:700;margin-bottom:8px}
-.date{font-size:13px;color:#888;margin-bottom:10px}
-.notes{font-size:16px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.card-title{font-size:calc(18px * var(--text-scale));font-weight:700;margin-bottom:8px}
+.date{font-size:calc(13px * var(--text-scale));color:#888;margin-bottom:10px}
+.notes{font-size:calc(16px * var(--text-scale));line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .media{margin-top:12px}
 .media img,.media video{display:block;width:100%;max-height:520px;object-fit:contain;border-radius:10px;background:#eee;margin-bottom:8px}
-.media a{display:inline-flex;align-items:center;justify-content:center;min-width:110px;height:40px;padding:0 16px;margin:4px 0 10px;border:1px solid #b8cdbb;border-radius:9px;background:#f2f8f3;color:#285c31;text-decoration:none;font-size:14px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.media a{display:inline-flex;align-items:center;justify-content:center;min-width:110px;height:40px;padding:0 16px;margin:4px 0 10px;border:1px solid #b8cdbb;border-radius:9px;background:#f2f8f3;color:#285c31;text-decoration:none;font-size:calc(14px * var(--text-scale));font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .action-buttons{display:flex;gap:8px;margin-top:16px}
-.copy-button,.delete-button,.edit-button{flex:1;height:46px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+.copy-button,.delete-button,.edit-button{flex:1;height:46px;border-radius:10px;font-size:calc(14px * var(--text-scale));font-weight:700;cursor:pointer}
 .edit-button{border:1px solid #b9a5d2;background:#f5f0fa;color:#68458d}
 .copy-button{border:1px solid #9fbea4;background:#edf6ef;color:#285c31}
 .delete-button{border:1px solid #d9a0a0;background:#fff3f3;color:#b00000}
 .copy-button:disabled,.delete-button:disabled,.edit-button:disabled{opacity:.6}
-.media-title{font-size:14px;color:#777;margin-bottom:8px}
+.media-title{font-size:calc(14px * var(--text-scale));color:#777;margin-bottom:8px}
 .bottom{position:fixed;left:0;right:0;bottom:0;background:#242424;border-top:1px solid #3b3b3b;padding:7px 5px 6px;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;z-index:10}
-.bottom button{border:0;border-radius:8px;background:transparent;color:#eee;font-size:13px;font-weight:700;padding:7px 2px 6px;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
-.bottom-icon{font-size:25px;line-height:1}
+.bottom button{border:0;border-radius:8px;background:transparent;color:#eee;font-size:calc(13px * var(--text-scale));font-weight:700;padding:7px 2px 6px;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.bottom-icon{font-size:calc(25px * var(--text-scale));line-height:1}
 .bottom button.active{color:#c5a8ee}
 .empty{text-align:center;padding:45px 10px;color:#777}
 .error{background:#fff0f0;border:1px solid #e0a0a0;color:#a00000;border-radius:12px;padding:15px;margin:12px 0;line-height:1.6}
-.personal-plus-button{background:#145A32!important;color:#fff!important;width:100%;height:52px;margin:0 0 14px;border:0;border-radius:10px;font-size:16px;font-weight:800}
-#settingsButton{position:absolute!important;right:10px!important;top:50%!important;transform:translateY(-50%)!important;width:44px!important;height:44px!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:50%!important;background:rgba(255,255,255,.12)!important;color:#fff!important;font-size:25px!important;z-index:999999!important}
+.personal-plus-button{background:#145A32!important;color:#fff!important;width:100%;height:52px;margin:0 0 14px;border:0;border-radius:10px;font-size:calc(16px * var(--text-scale));font-weight:800}
+#settingsButton{position:absolute!important;right:10px!important;top:50%!important;transform:translateY(-50%)!important;width:44px!important;height:44px!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:50%!important;background:rgba(255,255,255,.12)!important;color:#fff!important;font-size:calc(25px * var(--text-scale))!important;z-index:999999!important}
 #settingsPanel{position:fixed;inset:0;z-index:1000000;display:none;align-items:flex-start;justify-content:flex-end;background:rgba(0,0,0,.55)}
 #settingsPanel.open{display:flex}
 .settings-box{width:min(320px,88vw);margin:70px 10px 0 0;padding:20px;border-radius:16px;background:#fff;color:#222;box-shadow:0 12px 40px rgba(0,0,0,.4)}
-.settings-box h3{margin:0 0 18px;font-size:20px}
+.settings-box h3{margin:0 0 18px;font-size:calc(20px * var(--text-scale))}
 .theme-buttons{display:flex;gap:10px}
-.theme-buttons button{flex:1;padding:12px 8px;border:1px solid #bbb;border-radius:10px;background:#fff;color:#222;font-weight:700;font-size:15px}
+.theme-buttons button{flex:1;padding:12px 8px;border:1px solid #bbb;border-radius:10px;background:#fff;color:#222;font-weight:700;font-size:calc(15px * var(--text-scale))}
 .theme-buttons button.active{background:#145A32;border-color:#145A32;color:#fff}
 .settings-close{width:100%;margin-top:14px;padding:11px;border:0;border-radius:10px;background:#eee;color:#222;font-weight:700}
+.settings-font-button{width:100%;margin-top:10px;padding:12px 10px;border:1px solid #bbb;border-radius:10px;background:#fff;color:#222;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:space-between}
+.settings-font-button.active{background:#145A32;border-color:#145A32;color:#fff}
+.font-size-panel{display:none;margin-top:8px;padding:10px 8px 4px;border-radius:10px;background:#f4f4f4}
+.font-size-panel.open{display:block}
+.font-size-value{text-align:center;font-weight:800;font-size:14px;margin-bottom:5px}
+.font-size-range{display:block;width:100%;margin:4px 0;accent-color:#145A32;cursor:pointer}
+.font-size-labels{display:flex;justify-content:space-between;font-size:11px;color:#777}
+body.dark-theme .font-size-panel{background:#222}
+body.dark-theme .settings-font-button{background:#222;color:#eee;border-color:#555}
+body.dark-theme .settings-font-button.active{background:#145A32;border-color:#145A32;color:#fff}
+
 body.light-theme,body.light-theme main,body.light-theme #list{background:#f4f4f4!important}
 body.dark-theme,body.dark-theme main,body.dark-theme #list{background:#111!important}
 .research-form{background:#2b2b2b;border:1px solid #444;border-radius:14px;padding:15px;margin:10px 0 16px}
-.research-form input,.research-form textarea{width:100%;border:1px solid #555;border-radius:9px;background:#171717;color:#fff;padding:11px 12px;font-size:16px;outline:none;margin-bottom:9px}
+.research-form input,.research-form textarea{width:100%;border:1px solid #555;border-radius:9px;background:#171717;color:#fff;padding:11px 12px;font-size:calc(16px * var(--text-scale));outline:none;margin-bottom:9px}
 .research-form textarea{min-height:130px;resize:vertical;line-height:1.55}
 .research-form-actions{display:flex;gap:9px}
-.research-form-actions button{flex:1;height:44px;border-radius:9px;border:1px solid #75658d;background:#342b40;color:#dfd0f2;font-size:14px;font-weight:700}
+.research-form-actions button{flex:1;height:44px;border-radius:9px;border:1px solid #75658d;background:#342b40;color:#dfd0f2;font-size:calc(14px * var(--text-scale));font-weight:700}
 @media(max-width:480px){
   .bottom{padding:6px 3px 5px}
-  .bottom button{min-height:62px;font-size:11px}
-  .bottom-icon{font-size:23px}
+  .bottom button{min-height:62px;font-size:calc(11px * var(--text-scale))}
+  .bottom-icon{font-size:calc(23px * var(--text-scale))}
   .action-buttons{gap:6px}
-  .edit-button,.copy-button,.delete-button{font-size:13px;padding:0 3px}
+  .edit-button,.copy-button,.delete-button{font-size:calc(13px * var(--text-scale));padding:0 3px}
 }
 </style>
 </head>
@@ -91,6 +103,29 @@ body.dark-theme,body.dark-theme main,body.dark-theme #list{background:#111!impor
       <button id="themeLight" type="button">☀️ 배경 밝게</button>
       <button id="themeDark" type="button">🌙 배경 어둡게</button>
     </div>
+
+    <button id="fontSizeButton" class="settings-font-button" type="button">
+      <span>A 글자 크기</span>
+      <span id="fontSizeValueButton">100%</span>
+    </button>
+
+    <div id="fontSizePanel" class="font-size-panel">
+      <div id="fontSizeValue" class="font-size-value">100%</div>
+      <input
+        id="fontSizeRange"
+        class="font-size-range"
+        type="range"
+        min="80"
+        max="150"
+        step="1"
+        value="100"
+        aria-label="글자 크기">
+      <div class="font-size-labels">
+        <span>80%</span>
+        <span>150%</span>
+      </div>
+    </div>
+
     <button id="settingsClose" class="settings-close" type="button">닫기</button>
   </div>
 </div>
@@ -240,12 +275,12 @@ function showKakaoEditForm(r){
         value="${escapeHtml(f.Name||"")}"
         placeholder="문서구분"
         style="width:100%;height:48px;border:1px solid #555;border-radius:9px;
-        background:#111;color:#fff;padding:0 13px;font-size:16px;margin-bottom:10px">
+        background:#111;color:#fff;padding:0 13px;font-size:calc(16px * var(--text-scale));margin-bottom:10px">
 
       <textarea id="krNotes"
         placeholder="내용"
         style="width:100%;min-height:190px;border:1px solid #555;border-radius:9px;
-        background:#111;color:#fff;padding:13px;font-size:16px;
+        background:#111;color:#fff;padding:13px;font-size:calc(16px * var(--text-scale));
         line-height:1.6;resize:vertical">${escapeHtml(f.Notes||"")}</textarea>
 
       <div style="display:flex;gap:9px;margin-top:12px">
@@ -561,12 +596,12 @@ function showPersonalResearchForm(r=null){
         value="${escapeHtml(f.Name||"")}"
         placeholder="제목"
         style="width:100%;height:48px;border:1px solid #555;border-radius:9px;
-        background:#111;color:#fff;padding:0 13px;font-size:16px;margin-bottom:10px">
+        background:#111;color:#fff;padding:0 13px;font-size:calc(16px * var(--text-scale));margin-bottom:10px">
 
       <textarea id="prNotes"
         placeholder="연구 내용을 입력하세요"
         style="width:100%;min-height:190px;border:1px solid #555;border-radius:9px;
-        background:#111;color:#fff;padding:13px;font-size:16px;line-height:1.6;
+        background:#111;color:#fff;padding:13px;font-size:calc(16px * var(--text-scale));line-height:1.6;
         resize:vertical">${escapeHtml(f.Notes||"")}</textarea>
 
       <div style="display:flex;gap:9px;margin-top:12px">
@@ -811,6 +846,11 @@ addEventListener(
   const c=document.getElementById("settingsClose");
   const l=document.getElementById("themeLight");
   const d=document.getElementById("themeDark");
+  const fb=document.getElementById("fontSizeButton");
+  const fp=document.getElementById("fontSizePanel");
+  const fr=document.getElementById("fontSizeRange");
+  const fv=document.getElementById("fontSizeValue");
+  const fvb=document.getElementById("fontSizeValueButton");
 
   function theme(m){
     document.body.classList.toggle("light-theme",m==="light");
@@ -843,6 +883,40 @@ addEventListener(
 
   l.onclick=()=>theme("light");
   d.onclick=()=>theme("dark");
+
+  function applyFontSize(value, save=true){
+    const n=Math.min(150,Math.max(80,Number(value)||100));
+    document.documentElement.style.setProperty("--text-scale",n/100);
+    fr.value=n;
+    fv.textContent=n+"%";
+    fvb.textContent=n+"%";
+    if(save){
+      try{
+        localStorage.setItem("kkoFontSize",String(n));
+      }catch(e){}
+    }
+  }
+
+  function loadFontSize(){
+    let n=100;
+    try{
+      n=Number(localStorage.getItem("kkoFontSize"))||100;
+    }catch(e){}
+    applyFontSize(n,false);
+  }
+
+  fb.onclick=()=>{
+    fp.classList.toggle("open");
+    fb.classList.toggle("active",fp.classList.contains("open"));
+  };
+
+  fp.onclick=e=>e.stopPropagation();
+
+  fr.oninput=()=>{
+    applyFontSize(fr.value,true);
+  };
+
+  loadFontSize();
 })();
 
 load(getTypeFromURL());
